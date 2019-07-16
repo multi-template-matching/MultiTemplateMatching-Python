@@ -46,22 +46,30 @@ def _findLocalMin_(corrMap, score_threshold=0.4):
 
 
 
-def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5):
+def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
 	'''
 	Find all possible templates locations provided a list of template to search and an image
 	- listTemplate : list of tuples [(templateName, templateImage), (templateName2, templateImage2) ]
 	- method : one of OpenCV template matching method (0 to 5)
 	- N_object: expected number of object in the image
-	- score_threshold: if N>1, returns local minima/maxima respectively below/above the score_threshold		
+	- score_threshold: if N>1, returns local minima/maxima respectively below/above the score_threshold
+	- searchBox : optional search region as a tuple (X, Y, Width, Height)
 	'''
 	if N_object!=float("inf") and type(N_object)!=int:
 		raise TypeError("N_object must be an integer")
 		
 	elif N_object<1:
 		raise ValueError("At least one object should be expected in the image")
+		
+	## Crop image to search region if provided
+	if searchBox != None: 
+		xOffset, yOffset, searchWidth, searchHeight = searchBox
+		image = image[yOffset:yOffset+searchHeight, xOffset:xOffset+searchWidth]
+	else:
+		xOffset=yOffset=0
 	
 	## 16-bit image are converted to 32-bit for matchTemplate
-	if image.dtype == 'uint16': image = np.float32(image)
+	if image.dtype == 'uint16': image = np.float32(image)	
 	
 	listHit = []
 	for templateName, template in listTemplates:
@@ -99,9 +107,10 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
 		## Create a dictionnary for each hit with {'TemplateName':, 'BBox': (x,y,Width, Height), 'Score':coeff}
 		
 		height, width = template.shape[0:2] # slicing make sure it works for RGB too
+		
 		for peak in Peaks :
 			coeff  = corrMap[tuple(peak)]
-			newHit = {'TemplateName':templateName, 'BBox': [int(peak[1]), int(peak[0]), width, height], 'Score':coeff}
+			newHit = {'TemplateName':templateName, 'BBox': [int(peak[1])+xOffset, int(peak[0])+yOffset, width, height], 'Score':coeff}
 
 			# append to list of potential hit before Non maxima suppression
 			listHit.append(newHit)
@@ -110,7 +119,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
 	return listHit # All possible hit before Non-Maxima Supression
 	
 
-def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25):
+def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
 	'''
 	Search each template in the image, and return the best N_object location which offer the best score and which do not overlap
 	- listTemplate : list of tuples (templateName, templateImage)
@@ -121,7 +130,7 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
 	if maxOverlap<0 or maxOverlap>1:
 		raise ValueError("Maximal overlap between bounding box is in range [0-1]")
 		
-	listHit = findMatches(listTemplates, image, method, N_object, score_threshold)
+	listHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
 	
 	if method == 1:		  bestHits = NMS(listHit, N_object=N_object, maxOverlap=maxOverlap, sortDescending=False)
 	
