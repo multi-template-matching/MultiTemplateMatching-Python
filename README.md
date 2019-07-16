@@ -7,7 +7,7 @@ The main function `MTM.matchTemplates` returns the best predicted locations prov
 Using pip, `pip install Multi-Template-Matching`  
 Once installed, `import MTM`should work.
 
-# Documentaion
+# Documentation
 Check out the [jupyter notebook tutorial](https://github.com/LauLauThom/Multi-Template-Matching/blob/master/Tutorial.ipynb) for some example of how to use the package.  
 The [wiki](https://github.com/LauLauThom/MultiTemplateMatching/wiki) section of this related repository also provides some information about the implementation.
 
@@ -17,6 +17,10 @@ If you use this implementation for your research, please cite:
 _Multi-Template Matching: a versatile tool for object-localization in microscopy images;_  
 _Laurent SV Thomas, Jochen Gehrig_  
 bioRxiv 619338; doi: https://doi.org/10.1101/619338
+
+# Releases
+New github releases are automatically archived to Zenodo.  
+[![DOI](https://zenodo.org/badge/197186256.svg)](https://zenodo.org/badge/latestdoi/197186256)
 
 # Related projects
 See this [repo](https://github.com/LauLauThom/MultiTemplateMatching) for the implementation as a Fiji plugin.  
