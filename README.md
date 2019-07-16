@@ -31,12 +31,12 @@ Digital Biomedical Imaging Systems AG
 Freiburger Str. 3  
 75179 Pforzheim  
 
-<img src="https://github.com/LauLauThom/Multi-Template-Matching/blob/master/images/Acquifer_Logo_60k_cmyk_300dpi.png" alt="Fish" width="400" height="80">     
+<img src="https://github.com/LauLauThom/MultiTemplateMatching-Python/blob/master/images/Acquifer_Logo_60k_cmyk_300dpi.png" alt="Fish" width="400" height="80">     
 
 # Funding
 This project has received funding from the European Union’s Horizon 2020 research and innovation program under the Marie Sklodowska-Curie grant agreement No 721537 ImageInLife.  
 
 <p float="left">
-<img src="https://github.com/LauLauThom/Multi-Template-Matching/blob/master/images/ImageInlife.png" alt="ImageInLife" width="130" height="100">
-<img src="https://github.com/LauLauThom/Multi-Template-Matching/blob/master/images/MarieCurie.jpg" alt="MarieCurie" width="130" height="130">
+<img src="https://github.com/LauLauThom/MultiTemplateMatching-Python/blob/master/images/ImageInlife.png" alt="ImageInLife" width="130" height="100">
+<img src="https://github.com/LauLauThom/MultiTemplateMatching-Python/blob/master/images/MarieCurie.jpg" alt="MarieCurie" width="130" height="130">
 </p>
