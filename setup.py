@@ -12,7 +12,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
 	keywords="object-recognition object-localization",
-    url="https://github.com/LauLauThom/Multi-Template-Matching",
+    url="https://github.com/LauLauThom/MultiTemplateMatching-Python",
     packages=["MTM"],
 	install_requires=[
           'numpy',
