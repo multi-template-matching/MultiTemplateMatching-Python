@@ -139,7 +139,7 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
 	return bestHits
 
 
-def drawBoxes(img, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0) ):
+def drawBoxes(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0) ):
 	"""
 	Return a copy of the image with results of template matching drawn as yellow rectangle and name of the template on top
 	"""
