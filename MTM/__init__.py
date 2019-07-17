@@ -139,11 +139,11 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
 	return bestHits
 
 
-def drawBoxes(img, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 255) ):
+def drawBoxes(img, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0) ):
 	"""
 	Return a copy of the image with results of template matching drawn as yellow rectangle and name of the template on top
 	"""
-	outImage = img.copy()
+	outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) # convert to RGB to be able to show detections as color box on grayscale image
 	
 	for hit in listHit:
 		x,y,w,h = hit['BBox']
