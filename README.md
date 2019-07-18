@@ -8,9 +8,9 @@ Using pip, `pip install Multi-Template-Matching`
 Once installed, `import MTM`should work.
 
 # Documentation
-The package NMS contains mostly 2 important functions:  
+The package MTM contains mostly 2 important functions:  
 
-## matchTemplate  
+## matchTemplates  
 `matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None)`  
 
 This function searches each template in the image, and return the best N_object location which offer the best scores and which do not overlap above the `maxOverlap` threshold.  
