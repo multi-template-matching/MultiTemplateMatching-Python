@@ -24,6 +24,7 @@ setuptools.setup(
 		"Programming Language :: Python :: 3",
 		"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 		"Operating System :: OS Independent",
-		"Topic :: Scientific/Engineering :: Image Recognition"
+		"Topic :: Scientific/Engineering :: Image Recognition",
+		"Intended Audience :: Science/Research"		
 	],
 )
