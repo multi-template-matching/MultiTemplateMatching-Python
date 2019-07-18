@@ -8,6 +8,76 @@ Using pip, `pip install Multi-Template-Matching`
 Once installed, `import MTM`should work.
 
 # Documentation
+The package NMS contains mostly 2 important functions:  
+
+## matchTemplate  
+`matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None)`  
+
+This function searches each template in the image, and return the best N_object location which offer the best scores and which do not overlap above the `maxOverlap` threshold.  
+
+__Parameters__
+- _listTemplates_:   
+            list of tuples (LabelString, Grayscale or RGB numpy array) templates to search in each image, associated to a label 
+
+- _image_  : Grayscale or RGB numpy array  
+           image in which to perform the search, it should be the same bitDepth and number of channels than the templates
+
+- _method_ : int   
+            one of OpenCV template matching method (0 to 5), default 5=0-mean cross-correlation
+
+- _N_object_: int  
+            expected number of objects in the image
+
+- score_threshold: float in range [0,1]  
+            if N>1, returns local minima/maxima respectively below/above the score_threshold
+
+- _maxOverlap_: float in range [0,1]  
+            This is the maximal value for the ratio of the Intersection Over Union (IoU) area between a pair of bounding boxes.
+            If the ratio is over the maxOverlap, the lower score bounding box is discarded.
+
+- _searchBox_ : tuple (X, Y, Width, Height) in pixel unit  
+            optional rectangular search region as a tuple
+    
+__Returns__
+- _bestHits_:list of match as dictionaries {"TemplateName":string, "BBox":(X, Y, Width, Height), "Score":float}
+            if N=1, return the best matches independently of the score_threshold
+            if N<inf, returns up to N best matches that passed the score_threshold
+            if N=inf, returns all matches that passed the score_threshold
+
+
+The function `findMatches` performs the same detection without the Non-Maxima Supression.  
+
+## drawBoxes
+The 2nd important function is `drawBoxes` to display the detections as rectangular bounding boxes on the initial image.   
+`drawBoxes(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0)`
+
+This function returns a copy of the image with predicted template locations as bounding boxes overlaid on the image
+The name of the template can also be displayed on top of the bounding boxes with showLabel=True.
+
+__Parameters__
+- _image_  : numpy array  
+        image in which the search was performed  
+        
+- _listHit_ :  
+        list of hit as returned by matchTemplates or findMatches  
+        
+- _boxThickness_: int  
+        thickness of bounding box contour in pixels  
+        
+- _boxColor_: (int, int, int)  
+        RGB color for the bounding box  
+
+- _showLabel_: Boolean  
+        Display label of the bounding box (field TemplateName)
+
+- _labelColor_: (int, int, int)  
+          RGB color for the label  
+
+__Returns__
+- _outImage_: RGB image  
+        original image with predicted template locations depicted as bounding boxes  
+
+# Examples
 Check out the [jupyter notebook tutorial](https://github.com/LauLauThom/Multi-Template-Matching/blob/master/Tutorial.ipynb) for some example of how to use the package.  
 The [wiki](https://github.com/LauLauThom/MultiTemplateMatching/wiki) section of this related repository also provides some information about the implementation.
 
