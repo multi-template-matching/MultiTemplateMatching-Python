@@ -62,7 +62,7 @@ __Parameters__
         list of hit as returned by matchTemplates or findMatches  
         
 - _boxThickness_: int  
-        thickness of bounding box contour in pixels  
+        thickness of bounding box contour in pixels. -1 will fill the bounding box (useful for masks).  
         
 - _boxColor_: (int, int, int)  
         RGB color for the bounding box  
