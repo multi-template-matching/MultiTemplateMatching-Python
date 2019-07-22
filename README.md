@@ -67,7 +67,7 @@ __Parameters__
 - _boxColor_: (int, int, int)  
         RGB color for the bounding box  
 
-- _showLabel_: Boolean  
+- _showLabel_: Boolean, default True  
         Display label of the bounding box (field TemplateName)
 
 - _labelColor_: (int, int, int)  
