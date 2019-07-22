@@ -171,7 +171,7 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     return bestHits
 
 
-def drawBoxes(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0) ):
+def drawBoxes(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0) ):
     '''
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image
     The name of the template can also be displayed on top of the bounding box with showLabel=True
