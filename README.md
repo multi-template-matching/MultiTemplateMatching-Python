@@ -1,4 +1,4 @@
-# Multi-Template-Matching
+﻿# Multi-Template-Matching
 Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
 The template and images should have the same bitdepth (8,16,32-bit) and number of channels (single/Grayscale or RGB).  
 The main function `MTM.matchTemplates` returns the best predicted locations provided either a score_threshold and/or the expected number of objects in the image.  
@@ -47,9 +47,11 @@ __Returns__
 
 The function `findMatches` performs the same detection without the Non-Maxima Supression.  
 
-## drawBoxes
-The 2nd important function is `drawBoxes` to display the detections as rectangular bounding boxes on the initial image.   
-`drawBoxes(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0)`
+## drawBoxesOnRGB
+The 2nd important function is `drawBoxesOnRGB` to display the detections as rectangular bounding boxes on the initial image.  
+To be able to visualise the detection as colored bounding boxes, the function return a RGB copy of the image if a grayscale image is provided.  
+It is also possible to draw the detection bounding boxes on the grayscale image using drawBoxesOnGray (for instance to generate a mask of the detections).      
+`drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0), labelScale=0.5 )`
 
 This function returns a copy of the image with predicted template locations as bounding boxes overlaid on the image
 The name of the template can also be displayed on top of the bounding boxes with showLabel=True.
@@ -72,6 +74,9 @@ __Parameters__
 
 - _labelColor_: (int, int, int)  
           RGB color for the label  
+
+- _labelScale_: float, default=0.5
+	scale for the label sizes
 
 __Returns__
 - _outImage_: RGB image  

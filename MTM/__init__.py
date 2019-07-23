@@ -240,7 +240,6 @@ def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255, showLabel=Fals
     
     
 if __name__ == '__main__':
-    
     from skimage.data import coins
     import matplotlib.pyplot as plt
     
@@ -259,5 +258,5 @@ if __name__ == '__main__':
         print(hit)
     
     ## Display matches
-    Overlay = drawBoxes(image, listHit)
+    Overlay = drawBoxesOnRGB(image, listHit, showLabel=True)
     plt.imshow(Overlay)
