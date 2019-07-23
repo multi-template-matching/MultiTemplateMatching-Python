@@ -171,7 +171,7 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     return bestHits
 
 
-def drawBoxes(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0) ):
+def drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0), labelScale=0.5 ):
     '''
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image
     The name of the template can also be displayed on top of the bounding box with showLabel=True
@@ -200,11 +200,45 @@ def drawBoxes(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel
     for hit in listHit:
         x,y,w,h = hit['BBox']
         cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-        if showLabel: cv2.putText(outImage, text=hit['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=labelColor, lineType=cv2.LINE_AA) 
+        if showLabel: cv2.putText(outImage, text=hit['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     
     return outImage
 
 
+def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
+	'''
+    Same as drawBoxesOnRGB but with Graylevel.
+	If a RGB image is provided, the output image will be a grayscale image
+    Parameters
+    ----------
+    - image  : image in which the search was performed
+    - listHit: list of hit as returned by matchTemplates or findMatches
+    - boxThickness: int
+                thickness of bounding box contour in pixels
+    - boxColor: int
+                Gray level for the bounding box
+    - showLabel: Boolean
+                Display label of the bounding box (field TemplateName)
+    - labelColor: int
+                Gray level for the label
+    
+    Returns
+    -------
+    outImage: Single channel grayscale image
+            original image with predicted template locations depicted as bounding boxes
+    '''
+	# Convert RGB to grayscale
+    if image.ndim == 3: outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) # convert to RGB to be able to show detections as color box on grayscale image
+    else:               outImage = image.copy()
+        
+    for hit in listHit:
+        x,y,w,h = hit['BBox']
+        cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
+        if showLabel: cv2.putText(outImage, text=hit['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
+    
+    return outImage
+	
+	
 if __name__ == '__main__':
     
     from skimage.data import coins
