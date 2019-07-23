@@ -206,9 +206,9 @@ def drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00), show
 
 
 def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
-	'''
+    '''
     Same as drawBoxesOnRGB but with Graylevel.
-	If a RGB image is provided, the output image will be a grayscale image
+    If a RGB image is provided, the output image will be a grayscale image
     Parameters
     ----------
     - image  : image in which the search was performed
@@ -227,7 +227,7 @@ def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255, showLabel=Fals
     outImage: Single channel grayscale image
             original image with predicted template locations depicted as bounding boxes
     '''
-	# Convert RGB to grayscale
+    # Convert RGB to grayscale
     if image.ndim == 3: outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
         
@@ -237,8 +237,8 @@ def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255, showLabel=Fals
         if showLabel: cv2.putText(outImage, text=hit['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     
     return outImage
-	
-	
+    
+    
 if __name__ == '__main__':
     
     from skimage.data import coins
