@@ -4,8 +4,9 @@ The template and images should have the same bitdepth (8,16,32-bit) and number o
 The main function `MTM.matchTemplates` returns the best predicted locations provided either a score_threshold and/or the expected number of objects in the image.  
 
 # Installation
-Using pip, `pip install Multi-Template-Matching`  
-Once installed, `import MTM`should work.
+Using pip in a python environment, `pip install Multi-Template-Matching`  
+Once installed, `import MTM`should work.  
+Example jupyter notebooks can be downloaded from the tutorial folder of the github repository and executed in the newly configured python environement.  
 
 # Documentation
 The package MTM contains mostly 2 important functions:  
