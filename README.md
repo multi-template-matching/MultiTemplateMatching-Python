@@ -40,10 +40,10 @@ __Parameters__
             optional rectangular search region as a tuple
     
 __Returns__
-- _bestHits_:list of match as dictionaries {"TemplateName":string, "BBox":(X, Y, Width, Height), "Score":float}
-            if N=1, return the best matches independently of the score_threshold
-            if N<inf, returns up to N best matches that passed the score_threshold
-            if N=inf, returns all matches that passed the score_threshold
+- _bestHits_:list of match as dictionaries `{"TemplateName":string, "BBox":(X, Y, Width, Height), "Score":float}`  
+            - if N=1, return the best matches independently of the score_threshold  
+            - if N<inf, returns up to N best matches that passed the score_threshold  
+            - if N=inf, returns all matches that passed the score_threshold  
 
 
 The function `findMatches` performs the same detection without the Non-Maxima Supression.  
