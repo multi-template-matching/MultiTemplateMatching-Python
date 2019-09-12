@@ -84,7 +84,7 @@ __Returns__
         original image with predicted template locations depicted as bounding boxes  
 
 # Examples
-Check out the [jupyter notebook tutorial](https://github.com/LauLauThom/Multi-Template-Matching/blob/master/Tutorial.ipynb) for some example of how to use the package.  
+Check out the [jupyter notebook tutorial](https://github.com/LauLauThom/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
 The [wiki](https://github.com/LauLauThom/MultiTemplateMatching/wiki) section of this related repository also provides some information about the implementation.
 
 # Citation
