@@ -84,8 +84,8 @@ __Returns__
         original image with predicted template locations depicted as bounding boxes  
 
 # Examples
-Check out the [jupyter notebook tutorial](https://github.com/LauLauThom/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
-The [wiki](https://github.com/LauLauThom/MultiTemplateMatching/wiki) section of this related repository also provides some information about the implementation.
+Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
+The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Fiji/wiki) section of this related repository also provides some information about the implementation.
 
 # Citation
 If you use this implementation for your research, please cite:
@@ -99,7 +99,7 @@ New github releases are automatically archived to Zenodo.
 [![DOI](https://zenodo.org/badge/197186256.svg)](https://zenodo.org/badge/latestdoi/197186256)
 
 # Related projects
-See this [repo](https://github.com/LauLauThom/MultiTemplateMatching) for the implementation as a Fiji plugin.  
+See this [repo](https://github.com/multi-template-matching/MultiTemplateMatching-Fiji) for the implementation as a Fiji plugin.  
 [Here](https://nodepit.com/workflow/com.nodepit.space%2Flthomas%2Fpublic%2FMulti-Template%20Matching.knwf) for a KNIME workflow using Multi-Template-Matching.
 
 
@@ -111,12 +111,12 @@ Digital Biomedical Imaging Systems AG
 Freiburger Str. 3  
 75179 Pforzheim  
 
-<img src="https://github.com/LauLauThom/MultiTemplateMatching-Python/blob/master/images/Acquifer_Logo_60k_cmyk_300dpi.png" alt="Fish" width="400" height="80">     
+<img src="https://github.com/multi-template-matching/MultiTemplateMatching-Python/blob/master/images/Acquifer_Logo_60k_cmyk_300dpi.png" alt="Fish" width="400" height="80">     
 
 # Funding
 This project has received funding from the European Union’s Horizon 2020 research and innovation program under the Marie Sklodowska-Curie grant agreement No 721537 ImageInLife.  
 
 <p float="left">
-<img src="https://github.com/LauLauThom/MultiTemplateMatching-Python/blob/master/images/ImageInlife.png" alt="ImageInLife" width="130" height="100">
-<img src="https://github.com/LauLauThom/MultiTemplateMatching-Python/blob/master/images/MarieCurie.jpg" alt="MarieCurie" width="130" height="130">
+<img src="https://github.com/multi-template-matching/MultiTemplateMatching-Python/blob/master/images/ImageInlife.png" alt="ImageInLife" width="130" height="100">
+<img src="https://github.com/multi-template-matching/MultiTemplateMatching-Python/blob/master/images/MarieCurie.jpg" alt="MarieCurie" width="130" height="130">
 </p>
