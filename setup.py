@@ -5,20 +5,21 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 	name="Multi-Template-Matching",
-	version="1.4",
+	version="1.5.0",
 	author="Laurent Thomas",
 	author_email="laurent132.thomas@laposte.net",
 	description="Object-recognition in images using multiple templates",
 	long_description=long_description,
 	long_description_content_type="text/markdown",
 	keywords="object-recognition object-localization",
-	url="https://github.com/LauLauThom/MultiTemplateMatching-Python",
+	url="https://github.com/multi-template-matching/MultiTemplateMatching-Python",
 	packages=["MTM"],
 	install_requires=[
 		  'numpy',
 		  'opencv-python-headless',
 		  'scikit-image',
-		  'scipy'
+		  'scipy',
+		  'pandas'
 	  ],
 	classifiers=[
 		"Programming Language :: Python :: 3",
