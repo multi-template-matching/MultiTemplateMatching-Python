@@ -8,7 +8,7 @@ from MTM.NMS import NMS
 #from NMS import NMS # for test purpose (should be commented then)
 
 __all__ = ['NMS']
-
+__version__ = '1.15.1'
 
 def _findLocalMax_(corrMap, score_threshold=0.6):
     '''

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 	name="Multi-Template-Matching",
-	version="1.5.0",
+	version="1.5.1",
 	author="Laurent Thomas",
 	author_email="laurent132.thomas@laposte.net",
 	description="Object-recognition in images using multiple templates",
@@ -16,7 +16,7 @@ setuptools.setup(
 	packages=["MTM"],
 	install_requires=[
 		  'numpy',
-		  'opencv-python-headless',
+		  'opencv-python-headless=4.1.0.25',
 		  'scikit-image',
 		  'scipy',
 		  'pandas'
