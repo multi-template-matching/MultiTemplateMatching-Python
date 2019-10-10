@@ -40,7 +40,7 @@ __Parameters__
             optional rectangular search region as a tuple
     
 __Returns__
-- _bestHits_:list of match as dictionaries `{"TemplateName":string, "BBox":(X, Y, Width, Height), "Score":float}`  
+- Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float             
             - if N=1, return the best match independently of the score_threshold  
             - if N<inf, returns up to N best matches that passed the score_threshold  
             - if N=inf, returns all matches that passed the score_threshold  
@@ -52,7 +52,7 @@ The function `findMatches` performs the same detection without the Non-Maxima Su
 The 2nd important function is `drawBoxesOnRGB` to display the detections as rectangular bounding boxes on the initial image.  
 To be able to visualise the detection as colored bounding boxes, the function return a RGB copy of the image if a grayscale image is provided.  
 It is also possible to draw the detection bounding boxes on the grayscale image using drawBoxesOnGray (for instance to generate a mask of the detections).      
-`drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0), labelScale=0.5 )`
+`drawBoxesOnRGB(image, hits, boxThickness=2, boxColor=(255, 255, 00), showLabel=True, labelColor=(255, 255, 0), labelScale=0.5 )`
 
 This function returns a copy of the image with predicted template locations as bounding boxes overlaid on the image
 The name of the template can also be displayed on top of the bounding boxes with showLabel=True.
@@ -61,8 +61,8 @@ __Parameters__
 - _image_  : numpy array  
         image in which the search was performed  
         
-- _listHit_ :  
-        list of hit as returned by matchTemplates or findMatches  
+- _hits_ :  
+        (pandas DataFrame) hits as returned by matchTemplates or findMatches  
         
 - _boxThickness_: int  
         thickness of bounding box contour in pixels. -1 will fill the bounding box (useful for masks).  
