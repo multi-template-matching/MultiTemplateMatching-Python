@@ -61,8 +61,8 @@ __Parameters__
 - _image_  : numpy array  
         image in which the search was performed  
         
-- _hits_ :  
-        (pandas DataFrame) hits as returned by matchTemplates or findMatches  
+- _hits_ : pandas dataframe  
+         hits as returned by matchTemplates or findMatches  
         
 - _boxThickness_: int  
         thickness of bounding box contour in pixels. -1 will fill the bounding box (useful for masks).  
