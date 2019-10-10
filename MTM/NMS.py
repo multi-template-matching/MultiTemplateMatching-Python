@@ -11,6 +11,7 @@ The "possible" allowed overlap is set by the variable maxOverlap (between 0 and 
 @author: Laurent Thomas
 """
 from __future__ import division, print_function # for compatibility with Py2
+import pandas as pd
 
 def Point_in_Rectangle(Point, Rectangle):
 	'''Return True if a point (x,y) is contained in a Rectangle(x, y, width, height)'''
