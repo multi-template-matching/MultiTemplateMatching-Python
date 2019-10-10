@@ -1,9 +1,11 @@
 import cv2
-import numpy as np
+import numpy  as np
+import pandas as pd
 from skimage.feature import peak_local_max
 from scipy.signal    import find_peaks
 
 from MTM.NMS import NMS
+#from NMS import NMS # for test purpose (should be commented then)
 
 __all__ = ['NMS']
 
@@ -66,7 +68,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     
     Returns
     -------
-    - listHit: list of match as dictionaries {"TemplateName":string, "BBox":(X, Y, Width, Height), "Score":float} 
+    - Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float 
     '''
     if N_object!=float("inf") and type(N_object)!=int:
         raise TypeError("N_object must be an integer")
@@ -128,7 +130,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
             # append to list of potential hit before Non maxima suppression
             listHit.append(newHit)
     
-    return listHit # All possible hit before Non-Maxima Supression
+    return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
     
 
 def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
@@ -154,31 +156,31 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     
     Returns
     -------
-    - bestHits: list of match as dictionaries {"TemplateName":string, "BBox":(X, Y, Width, Height), "Score":float}
-                if N=1, return the best matches independently of the score_threshold
-                if N<inf, returns up to N best matches that passed the score_threshold
-                if N=inf, returns all matches that passed the score_threshold
+	Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float                 
+		if N=1, return the best matches independently of the score_threshold
+		if N<inf, returns up to N best matches that passed the score_threshold
+		if N=inf, returns all matches that passed the score_threshold
     '''
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
         
-    listHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
+    tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
     
-    if method == 1:       bestHits = NMS(listHit, N_object=N_object, maxOverlap=maxOverlap, sortDescending=False)
+    if method == 1:       bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortDescending=False)
     
-    elif method in (3,5): bestHits = NMS(listHit, N_object=N_object, maxOverlap=maxOverlap, sortDescending=True)
+    elif method in (3,5): bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortDescending=True)
     
     return bestHits
 
 
-def drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0), labelScale=0.5 ):
+def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0), labelScale=0.5 ):
     '''
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image
     The name of the template can also be displayed on top of the bounding box with showLabel=True
     Parameters
     ----------
     - image  : image in which the search was performed
-    - listHit: list of hit as returned by matchTemplates or findMatches
+    - tableHit: list of hit as returned by matchTemplates or findMatches
     - boxThickness: int
                     thickness of bounding box contour in pixels
     - boxColor: (int, int, int)
@@ -197,22 +199,22 @@ def drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00), show
     if image.ndim == 2: outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
         
-    for hit in listHit:
-        x,y,w,h = hit['BBox']
+    for index, row in tableHit.iterrows():
+        x,y,w,h = row['BBox']
         cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-        if showLabel: cv2.putText(outImage, text=hit['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
+        if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     
     return outImage
 
 
-def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
+def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
     '''
     Same as drawBoxesOnRGB but with Graylevel.
     If a RGB image is provided, the output image will be a grayscale image
     Parameters
     ----------
     - image  : image in which the search was performed
-    - listHit: list of hit as returned by matchTemplates or findMatches
+    - tableHit: list of hit as returned by matchTemplates or findMatches
     - boxThickness: int
                 thickness of bounding box contour in pixels
     - boxColor: int
@@ -231,10 +233,10 @@ def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255, showLabel=Fals
     if image.ndim == 3: outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
         
-    for hit in listHit:
-        x,y,w,h = hit['BBox']
+    for index, row in tableHit.iterrows():
+        x,y,w,h = row['BBox']
         cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-        if showLabel: cv2.putText(outImage, text=hit['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
+        if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     
     return outImage
     
@@ -243,20 +245,20 @@ if __name__ == '__main__':
     from skimage.data import coins
     import matplotlib.pyplot as plt
     
-    ## Get image and template
+    ## Get image and templates by cropping
     smallCoin = coins()[37:37+38, 80:80+41] 
     bigCoin   = coins()[14:14+59,302:302+65]
     image     = coins()
     
     ## Perform matching
-    listHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.4, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)
-    #listHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, N_object=1, score_threshold=0.4, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)
+    #tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.4, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)
+    tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, N_object=1, score_threshold=0.4, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)
    
-    print("Found {} coins".format(len(listHit)))
+    print("Found {} coins".format(len(tableHit)))
     
-    for hit in listHit:
-        print(hit)
+    print(tableHit)
+
     
     ## Display matches
-    Overlay = drawBoxesOnRGB(image, listHit, showLabel=True)
+    Overlay = drawBoxesOnRGB(image, tableHit, showLabel=True)
     plt.imshow(Overlay)
