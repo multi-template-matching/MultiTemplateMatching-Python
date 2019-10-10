@@ -77,7 +77,7 @@ def computeIoU(BBox1,BBox2):
 
 
 
-def NMS(tableHit, scoreThreshold=None, sortDescending=True, N_object=float("inf"), maxOverlap=0.5):
+def NMS(tableHit, scoreThreshold=None, sortAscending=False, N_object=float("inf"), maxOverlap=0.5):
     '''
     Perform Non-Maxima supression : it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
     This function works both with an optionnal threshold on the score, and number of detected bbox
@@ -99,8 +99,8 @@ def NMS(tableHit, scoreThreshold=None, sortDescending=True, N_object=float("inf"
                        While if we use sortDescending=False (we use a difference measure ie we want to keep low score), the scores below that threshold are kept
                        
     - N_object                 : number of best hit to return (by increasing score). Min=1, eventhough it does not really make sense to do NMS with only 1 hit
-    - maxOverlap     : float between 0 and 1, the maximal overlap authorised between 2 bounding boxes, above this value, the bounding box of lower score is deleted
-    - sortDescending : use True when high score means better prediction, False otherwise (ex : if score is a difference measure, then the best prediction are low difference and we sort by ascending order)
+    - maxOverlap    : float between 0 and 1, the maximal overlap authorised between 2 bounding boxes, above this value, the bounding box of lower score is deleted
+    - sortAscending : use True when low score means better prediction (Difference-based score), True otherwise (Correlation score)
 
     OUTPUT
     Panda DataFrame with best detection after NMS, it contains max N detection (but potentially less)
@@ -110,17 +110,15 @@ def NMS(tableHit, scoreThreshold=None, sortDescending=True, N_object=float("inf"
     if scoreThreshold==None :
         threshTable = tableHit.copy() # copy to avoid modifying the input list in place
     
-    elif sortDescending : # We keep rows above the threshold
+    elif not sortAscending : # We keep rows above the threshold
         threshTable = tableHit[ tableHit['Score']>=scoreThreshold ]
 
-    elif not sortDescending : # We keep hit below the threshold
+    elif sortAscending : # We keep hit below the threshold
         threshTable = tableHit[ tableHit['Score']<=scoreThreshold ]    
     
-    # Sort score to have best predictions first (important as we loop testing the best boxes against the other boxes)
-    if sortDescending:
-        threshTable.sort_values("Score", ascending=False, inplace=True) # Hit = [list of (x,y),score] - sort according to descending (best = high correlation)
-    else:
-        threshTable.sort_values("Score", ascending=True, inplace=True) # sort according to ascending score (best = small difference)
+    # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)
+    # important as we loop testing the best boxes against the other boxes)
+    threshTable.sort_values("Score", ascending=sortAscending, inplace=True) # Warning here is fine
     
     
     # Split the inital pool into Final Hit that are kept and restTable that can be tested
@@ -196,6 +194,6 @@ if __name__ == "__main__":
             {'TemplateName':1,'BBox':(1074, 530, 680, 390), 'Score':0.4}
             ]
 
-    FinalHits = NMS( pd.DataFrame(ListHit), scoreThreshold=0.7, sortDescending=True, maxOverlap=0.5  )
+    FinalHits = NMS( pd.DataFrame(ListHit), scoreThreshold=0.7, sortAscending=False, maxOverlap=0.5  )
 
     print(FinalHits)

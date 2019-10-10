@@ -166,9 +166,9 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
         
     tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
     
-    if method == 1:       bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortDescending=False)
+    if method == 1:       bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=True)
     
-    elif method in (3,5): bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortDescending=True)
+    elif method in (3,5): bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=False)
     
     return bestHits
 
@@ -251,8 +251,8 @@ if __name__ == '__main__':
     image     = coins()
     
     ## Perform matching
-    #tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.4, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)
-    tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, N_object=1, score_threshold=0.4, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)
+    #tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.6, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0) # Correlation-score
+    tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.4, method=cv2.TM_SQDIFF_NORMED, maxOverlap=0) # Difference-score
    
     print("Found {} coins".format(len(tableHit)))
     
