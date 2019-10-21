@@ -4,8 +4,7 @@ import pandas as pd
 from skimage.feature import peak_local_max
 from scipy.signal    import find_peaks
 
-from MTM.NMS import NMS
-#from NMS import NMS # for test purpose (should be commented then)
+from .NMS import NMS
 
 __all__ = ['NMS']
 __version__ = '1.15.1'
