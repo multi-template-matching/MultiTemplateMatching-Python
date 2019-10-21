@@ -239,26 +239,3 @@ def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=Fal
         if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     
     return outImage
-    
-    
-if __name__ == '__main__':
-    from skimage.data import coins
-    import matplotlib.pyplot as plt
-    
-    ## Get image and templates by cropping
-    smallCoin = coins()[37:37+38, 80:80+41] 
-    bigCoin   = coins()[14:14+59,302:302+65]
-    image     = coins()
-    
-    ## Perform matching
-    #tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.6, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0) # Correlation-score
-    tableHit = matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.4, method=cv2.TM_SQDIFF_NORMED, maxOverlap=0) # Difference-score
-   
-    print("Found {} coins".format(len(tableHit)))
-    
-    print(tableHit)
-
-    
-    ## Display matches
-    Overlay = drawBoxesOnRGB(image, tableHit, showLabel=True)
-    plt.imshow(Overlay)
