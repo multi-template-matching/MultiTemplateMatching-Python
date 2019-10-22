@@ -15,7 +15,8 @@ The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Pyth
 
 # Examples
 Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
-To run the tutorials, install the package using pip as described above, then clone the repository and unzip it.  
+You can run the tutorials online using Binder, no configuration needed ! (click the Binder banner on top of this page).  
+To run the tutorials locally, install the package using pip as described above, then clone the repository and unzip it.  
 Finally open a jupyter-notebook session in the unzipped folder to be able to open and execute the notebook.  
 The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Fiji/wiki) section of this related repository also provides some information about the implementation.
 
