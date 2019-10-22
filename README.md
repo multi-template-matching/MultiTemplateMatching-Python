@@ -85,6 +85,8 @@ __Returns__
 
 # Examples
 Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
+To run the tutorials, install the package using pip as described above, then clone the repository and unzip it.  
+Finally open a jupyter-notebook session in the unzipped folder to be able to open and execute the notebook.  
 The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Fiji/wiki) section of this related repository also provides some information about the implementation.
 
 # Citation
