@@ -1,4 +1,6 @@
-﻿# Multi-Template-Matching
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/multi-template-matching/MultiTemplateMatching-Python/master?filepath=tutorials)
+
+# Multi-Template-Matching
 Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
 The template and images should have the same bitdepth (8,16,32-bit) and number of channels (single/Grayscale or RGB).  
 The main function `MTM.matchTemplates` returns the best predicted locations provided either a score_threshold and/or the expected number of objects in the image.  
