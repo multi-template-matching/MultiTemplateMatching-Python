@@ -7,7 +7,7 @@ from scipy.signal    import find_peaks
 from .NMS import NMS
 
 __all__ = ['NMS']
-__version__ = '1.5.1'
+__version__ = '1.5.2'
 
 def _findLocalMax_(corrMap, score_threshold=0.6):
     '''
@@ -82,15 +82,27 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     else:
         xOffset=yOffset=0
     
-    ## 16-bit image are converted to 32-bit for matchTemplate
-    if image.dtype == 'uint16': image = np.float32(image)   
+    ## OpenCv matchTemplates only support 8 or 32-bit ie cast 16-bit to 32-bit
+    if image.dtype == 'uint16': 
+        image = np.float32(image)
+    
+    elif  image.dtype == "float64":
+        raise ValueError("64-bit not supported, max 32-bit")
     
     listHit = []
     for templateName, template in listTemplates:
         
         #print('\nSearch with template : ',templateName)
-        ## 16-bit image are converted to 32-bit for matchTemplate
-        if template.dtype == 'uint16': template = np.float32(template)        
+        
+        if template.dtype == "float64": raise ValueError("64-bit not supported, max 32-bit")
+        
+        ## Make sure both images have same bittype and 8 or 32 bit
+        if (template.dtype == "uint8" and image.dtype == "float32")   or   template.dtype == 'uint16':
+            template = np.float32(template)
+        
+        # Separate if
+        if template.dtype == "float32" and image.dtype == "uint8":
+            image = np.float32(image)
         
         ## Compute correlation map
         corrMap = cv2.matchTemplate(template, image, method)
@@ -155,10 +167,10 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     
     Returns
     -------
-	Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float                 
-		if N=1, return the best matches independently of the score_threshold
-		if N<inf, returns up to N best matches that passed the score_threshold
-		if N=inf, returns all matches that passed the score_threshold
+    Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float                 
+        if N=1, return the best matches independently of the score_threshold
+        if N<inf, returns up to N best matches that passed the score_threshold
+        if N=inf, returns all matches that passed the score_threshold
     '''
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")

@@ -4,9 +4,10 @@ import MTM, cv2
 import numpy as np
 
 #%% Get image and templates by cropping
-smallCoin = coins()[37:37+38, 80:80+41] 
-bigCoin   = coins()[14:14+59,302:302+65]
 image     = coins()
+smallCoin = image[37:37+38, 80:80+41]
+bigCoin   = image[14:14+59,302:302+65]
+
 
 #%% Perform matching
 tableHit = MTM.matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.6, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0) # Correlation-score
