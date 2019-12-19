@@ -81,31 +81,19 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         image = image[yOffset:yOffset+searchHeight, xOffset:xOffset+searchWidth]
     else:
         xOffset=yOffset=0
-    
-    ## OpenCv matchTemplates only support 8 or 32-bit ie cast 16-bit to 32-bit
-    if image.dtype == 'uint16': 
-        image = np.float32(image)
-    
-    elif  image.dtype == "float64":
-        raise ValueError("64-bit not supported, max 32-bit")
-    
+      
     listHit = []
     for templateName, template in listTemplates:
         
         #print('\nSearch with template : ',templateName)
         
-        if template.dtype == "float64": raise ValueError("64-bit not supported, max 32-bit")
-        
-        ## Make sure both images have same bittype and 8 or 32 bit
-        if (template.dtype == "uint8" and image.dtype == "float32")   or   template.dtype == 'uint16':
-            template = np.float32(template)
-        
-        # Separate if
-        if template.dtype == "float32" and image.dtype == "uint8":
-            image = np.float32(image)
+        if template.dtype == "float64" or image.dtype == "float64": raise ValueError("64-bit not supported, max 32-bit")
         
         ## Compute correlation map
-        corrMap = cv2.matchTemplate(template, image, method)
+        if template.dtype == "uint8" and image.dtype == "uint8":
+            corrMap = cv2.matchTemplate(template, image, method)
+        else:
+            corrMap = cv2.matchTemplate(np.float32(template), np.float32(image), method)
 
         ## Find possible location of the object 
         if N_object==1: # Detect global Min/Max
