@@ -28,7 +28,7 @@ _Laurent SV Thomas, Jochen Gehrig_
 bioRxiv 619338; doi: https://doi.org/10.1101/619338
 
 # Releases
-New github releases are automatically archived to Zenodo.  
+Previous github releases were archived to Zenodo.  
 [![DOI](https://zenodo.org/badge/197186256.svg)](https://zenodo.org/badge/latestdoi/197186256)
 
 # Related projects
