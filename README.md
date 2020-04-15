@@ -36,12 +36,7 @@ See this [repo](https://github.com/multi-template-matching/MultiTemplateMatching
 
 
 # Origin of the work
-This work has been part of the PhD project of **Laurent Thomas** under supervision of **Dr. Jochen Gehrig** at:  
-  
-ACQUIFER a division of DITABIS AG  
-Digital Biomedical Imaging Systems AG  
-Freiburger Str. 3  
-75179 Pforzheim  
+This work has been part of the PhD project of **Laurent Thomas** under supervision of **Dr. Jochen Gehrig** at ACQUIFER.  
 
 <img src="https://github.com/multi-template-matching/MultiTemplateMatching-Python/blob/master/images/Acquifer_Logo_60k_cmyk_300dpi.png" alt="ACQUIFER" width="400" height="80">     
 
