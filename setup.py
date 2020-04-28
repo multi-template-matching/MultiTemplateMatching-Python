@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 	name="Multi-Template-Matching",
-	version="1.5.2",
+	version="1.5.3",
 	author="Laurent Thomas",
 	author_email="laurent132.thomas@laposte.net",
 	description="Object-recognition in images using multiple templates",
