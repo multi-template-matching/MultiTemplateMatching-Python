@@ -46,6 +46,23 @@ def _findLocalMin_(corrMap, score_threshold=0.4):
     return _findLocalMax_(-corrMap, -score_threshold)
 
 
+def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
+    '''
+    Compute score map provided numpy array for template and image.
+    Automatically converts images if necessary
+    return score map as numpy as array
+    '''
+    if template.dtype == "float64" or image.dtype == "float64": 
+        raise ValueError("64-bit not supported, max 32-bit")
+        
+    # Convert images if not both 8-bit (OpenCV matchTempalte is only defined for 8-bit OR 32-bit)
+    if not (template.dtype == "uint8" and image.dtype == "uint8"):
+        template = np.float32(template)
+        image    = np.float32(image)
+    
+    # Compute correlation map
+    return cv2.matchTemplate(template, image, method)
+
 
 def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
     '''
@@ -87,13 +104,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         
         #print('\nSearch with template : ',templateName)
         
-        if template.dtype == "float64" or image.dtype == "float64": raise ValueError("64-bit not supported, max 32-bit")
-        
-        ## Compute correlation map
-        if template.dtype == "uint8" and image.dtype == "uint8":
-            corrMap = cv2.matchTemplate(template, image, method)
-        else:
-            corrMap = cv2.matchTemplate(np.float32(template), np.float32(image), method)
+        corrMap = computeScoreMap(template, image, method)
 
         ## Find possible location of the object 
         if N_object==1: # Detect global Min/Max
