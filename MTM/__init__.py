@@ -7,7 +7,7 @@ from scipy.signal    import find_peaks
 from .NMS import NMS
 
 __all__ = ['NMS']
-__version__ = '1.5.2'
+__version__ = '1.5.3'
 
 def _findLocalMax_(corrMap, score_threshold=0.6):
     '''
