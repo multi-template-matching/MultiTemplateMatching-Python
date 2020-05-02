@@ -1,13 +1,13 @@
 import cv2
 import numpy  as np
 import pandas as pd
-from skimage.feature import peak_local_max
+from skimage.feature import peak_local_max, match_template
 from scipy.signal    import find_peaks
 
 from .NMS import NMS
 
 __all__ = ['NMS']
-__version__ = '1.5.3'
+__version__ = '1.5.3post'
 
 def _findLocalMax_(corrMap, score_threshold=0.6):
     '''
@@ -104,8 +104,9 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         
         #print('\nSearch with template : ',templateName)
         
-        corrMap = computeScoreMap(template, image, method)
-
+        #corrMap = computeScoreMap(template, image, method)
+        corrMap = match_template(image, template)
+        
         ## Find possible location of the object 
         if N_object==1: # Detect global Min/Max
             minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(corrMap)
