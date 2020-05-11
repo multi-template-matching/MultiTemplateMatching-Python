@@ -3,11 +3,11 @@ import numpy  as np
 import pandas as pd
 from skimage.feature import peak_local_max
 from scipy.signal    import find_peaks
+from .version import __version__
 
 from .NMS import NMS
 
 __all__ = ['NMS']
-__version__ = '1.5.3'
 
 def _findLocalMax_(corrMap, score_threshold=0.6):
     '''
