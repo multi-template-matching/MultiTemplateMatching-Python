@@ -1,5 +1,6 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/multi-template-matching/MultiTemplateMatching-Python/master?filepath=tutorials)
 ![Twitter Follow](https://img.shields.io/twitter/follow/LauLauThom?style=social)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/laurent132.thomas@laposte.net)
 
 # Multi-Template-Matching
 Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
