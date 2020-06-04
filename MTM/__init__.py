@@ -13,6 +13,8 @@ def findLocalMax(corrMap, score_threshold=0.6):
     '''
     Get coordinates of the local maximas with values above a threshold in the image of the correlation map
     '''
+    # Get back an array if UMat provided
+    if isinstance(corrMap, cv2.UMat): corrMap = corrMap.get() 
     
     # IF depending on the shape of the correlation map
     if corrMap.shape == (1,1): ## Template size = Image size -> Correlation map is a single digit')
@@ -64,7 +66,49 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
     return cv2.matchTemplate(template, image, method)
 
 
-def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
+def checkTypes(listTemplates, image, useOpencl=False):
+    '''
+    Check that the templates and image have the same bitDepthand 8 or 32-bit'''
+    templatesType = list( set( [template[1].dtype for template in listTemplates] ) ) # get a list of unique template types
+    
+    if (image.dtype =="float64") or ("float64" in templatesType): 
+        raise ValueError("64-bit not supported, max 32-bit")
+    
+    all8  = image.dtype=="uint8"   and templatesType==["uint8"]
+    all32 = image.dtype=="float32" and templatesType==["float32"]
+    
+    if all8 or all32:
+        
+        if useOpencl:
+            listTemplates = [ (template[0], cv2.UMat(template[1]) ) for template in listTemplates ]
+            image = cv2.UMat(image)
+        
+        else:
+            pass # images are either all 8-bit or all 32-bit and no need to convert to UMat
+    
+    
+    else:
+        # Create a lambda function for conversion
+        if useOpencl:
+            convert32 = lambda array: cv2.UMat( np.float32(array) )
+        else:
+            convert32 = lambda array: cv2.UMat(array)
+        
+        # convert to 32-bit + UMat if necessary 
+        listTemplates =  [ (template[0], convert32(template[1]) ) for template in listTemplates ]
+        image = convert32(image)
+    
+    return listTemplates, image
+
+
+
+def findMatches(listTemplates, 
+                image, 
+                method=cv2.TM_CCOEFF_NORMED, 
+                N_object=float("inf"), 
+                score_threshold=0.5, 
+                searchBox=None, 
+                useOpencl=False):
     '''
     Find all possible templates locations provided a list of template to search and an image
     Parameters
@@ -98,17 +142,20 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         image = image[yOffset:yOffset+searchHeight, xOffset:xOffset+searchWidth]
     else:
         xOffset=yOffset=0
+    
+    listTemplates, image = checkTypes(listTemplates, image, useOpencl) # also convert to UMat if using opencl
       
     listHit = []
     for templateName, template in listTemplates:
         
         #print('\nSearch with template : ',templateName)
         
-        corrMap = computeScoreMap(template, image, method)
+        corrMap = cv2.matchTemplate(template, image, method) # automatically run with opencl if provided a UMat
 
         ## Find possible location of the object 
         if N_object==1: # Detect global Min/Max
             minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(corrMap)
+            if isinstance(corrMap, cv2.UMat): corrMap = corrMap.get()
             
             if method==1:
                 Peaks = [minLoc[::-1]] # opposite sorting than in the multiple detection
@@ -117,7 +164,9 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
                 Peaks = [maxLoc[::-1]]
             
             
-        else:# Detect local max or min
+        else: # Detect local max or min
+            if isinstance(corrMap, cv2.UMat): corrMap = corrMap.get()
+
             if method==1: # Difference => look for local minima
                 Peaks = findLocalMin(corrMap, score_threshold)
             
@@ -130,7 +179,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         
         # Once every peak was detected for this given template
         ## Create a dictionnary for each hit with {'TemplateName':, 'BBox': (x,y,Width, Height), 'Score':coeff}
-        
+        if isinstance(template, cv2.UMat): template = template.get() # get back to array from UMat
         height, width = template.shape[0:2] # slicing make sure it works for RGB too
         
         for peak in Peaks :
@@ -143,7 +192,14 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
     
 
-def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
+def matchTemplates(listTemplates, 
+                   image, 
+                   method=cv2.TM_CCOEFF_NORMED, 
+                   N_object=float("inf"), 
+                   score_threshold=0.5, 
+                   maxOverlap=0.25, 
+                   searchBox=None,
+                   useOpencl=False):
     '''
     Search each template in the image, and return the best N_object location which offer the best score and which do not overlap
     Parameters
@@ -174,7 +230,13 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
         
-    tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
+    tableHit = findMatches(listTemplates, 
+                           image, 
+                           method, 
+                           N_object, 
+                           score_threshold, 
+                           searchBox,
+                           useOpencl)
     
     if method == 1:       bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=True)
     
