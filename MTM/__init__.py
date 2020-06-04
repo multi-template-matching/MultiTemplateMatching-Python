@@ -3,7 +3,7 @@ import numpy  as np
 import pandas as pd
 from skimage.feature import peak_local_max
 from scipy.signal    import find_peaks
-from .version import __version__
+from .version import __version__ # to be able to do MTM.__version__
 
 from .NMS import NMS
 
