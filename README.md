@@ -4,8 +4,9 @@
 
 # Multi-Template-Matching
 Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
-The template and images should have the same bitdepth (8,16,32-bit) and number of channels (single/Grayscale or RGB).  
 The main function `MTM.matchTemplates` returns the best predicted locations provided either a score_threshold and/or the expected number of objects in the image.  
+
+The branch opencl contains some test using the UMat object to run on GPU, but it is actually slow, which can be expected for small dataset as the transfer of the data between the CPU and GPU is slow.
 
 # Installation
 Using pip in a python environment, `pip install Multi-Template-Matching`  
