@@ -9,7 +9,7 @@ from .NMS import NMS
 
 __all__ = ['NMS']
 
-def _findLocalMax_(corrMap, score_threshold=0.6):
+def findLocalMax(corrMap, score_threshold=0.6):
     '''
     Get coordinates of the local maximas with values above a threshold in the image of the correlation map
     '''
@@ -41,9 +41,9 @@ def _findLocalMax_(corrMap, score_threshold=0.6):
 
 
 
-def _findLocalMin_(corrMap, score_threshold=0.4):
+def findLocalMin(corrMap, score_threshold=0.4):
     '''Find coordinates of local minimas with values below a threshold in the image of the correlation map'''
-    return _findLocalMax_(-corrMap, -score_threshold)
+    return findLocalMax(-corrMap, -score_threshold)
 
 
 def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
@@ -119,10 +119,10 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
             
         else:# Detect local max or min
             if method==1: # Difference => look for local minima
-                Peaks = _findLocalMin_(corrMap, score_threshold)
+                Peaks = findLocalMin(corrMap, score_threshold)
             
             elif method in (3,5):
-                Peaks = _findLocalMax_(corrMap, score_threshold)
+                Peaks = findLocalMax(corrMap, score_threshold)
             
         
         #print('Initially found',len(Peaks),'hit with this template')
