@@ -8,6 +8,10 @@ to try on other devices too
 from skimage.data import coins
 import cv2
 
+# Check openCL device
+device = cv2.ocl_Device.getDefault()
+print ("OpenCL device : ", cv2.ocl_Device.name(device) )
+
 #%% Get image and templates by cropping
 image     = coins()
 smallCoin = image[37:37+38, 80:80+41] 
