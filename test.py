@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import MTM, cv2
 import numpy as np
 
+print(MTM.__version__)
+
 #%% Get image and templates by cropping
 image     = coins()
 smallCoin = image[37:37+38, 80:80+41]
@@ -13,7 +15,13 @@ bigCoin   = image[14:14+59,302:302+65]
 
 
 #%% Perform matching
-tableHit = MTM.matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.6, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0) # Correlation-score
+tableHit = MTM.matchTemplates([('small', smallCoin), ('big', bigCoin)], 
+                               image, 
+                               score_threshold=0.6, 
+                               method=cv2.TM_CCOEFF_NORMED, 
+                               maxOverlap=0,
+                               useOpencl=True) # Correlation-score
+
 #tableHit = MTM.matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.4, method=cv2.TM_SQDIFF_NORMED, maxOverlap=0) # Difference-score
 
 print("Found {} coins".format(len(tableHit)))
