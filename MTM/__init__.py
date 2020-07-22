@@ -64,7 +64,7 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
     return cv2.matchTemplate(template, image, method)
 
 
-def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
+def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=-1, score_threshold=0.5, searchBox=None):
     '''
     Find all possible templates locations provided a list of template to search and an image
     Parameters
@@ -76,7 +76,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     - method : int 
                 one of OpenCV template matching method (0 to 5), default 5=0-mean cross-correlation
     - N_object: int
-                expected number of objects in the image
+                expected number of objects in the image, -1 if unknown
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
     - searchBox : tuple (X, Y, Width, Height) in pixel unit
@@ -88,9 +88,6 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     '''
     if N_object!=float("inf") and type(N_object)!=int:
         raise TypeError("N_object must be an integer")
-        
-    elif N_object<1:
-        raise ValueError("At least one object should be expected in the image")
         
     ## Crop image to search region if provided
     if searchBox != None: 
@@ -143,7 +140,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
     
 
-def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
+def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=-1, score_threshold=0.5, maxOverlap=0.25, searchBox=None):
     '''
     Search each template in the image, and return the best N_object location which offer the best score and which do not overlap
     Parameters
@@ -176,12 +173,11 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
         
     tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
     
-    if method == 1:       bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=True)
+    if method == 1:       sortAscending = True
+    elif method in (3,5): sortAscending = False
     
-    elif method in (3,5): bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=False)
+    return NMS(tableHit, score_threshold, sortAscending, N_object, maxOverlap)
     
-    return bestHits
-
 
 def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0), labelScale=0.5 ):
     '''
