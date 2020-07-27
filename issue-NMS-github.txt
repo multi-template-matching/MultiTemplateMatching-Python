@@ -1,0 +1,132 @@
+##### System information (version)
+- OpenCV => 4.3.0 (opencv-python via pip) 
+- Operating System / Platform => Windows 64 Bit
+
+
+##### Detailed description
+When setting `top_k>0` in `NMSBoxes`, I dont always get the expected number of boxes in output.  
+With top_k=4 I get 2 boxes, top_k=5 I get 3 boxes.  
+
+With top_k<0 the output make sense, such that I could recover the top_k after the NMS but that's not really optimal.   
+I'm wondering if it's related to this PR https://github.com/opencv/opencv/pull/16828, but it should be fixed in 4.3.0 🤔  
+I also tried casting the boxes to float (hence the lambda function) but it does not change the output.  
+Or am I missing something in the function definition ?
+
+I also observe it with some java binding (via javacv), so I think it might not be specific to those particular bindings.
+
+
+##### Steps to reproduce (python)
+```python
+import cv2
+listBoxes = [
+ (946, 784, 414, 400),
+ (1525, 968, 414, 400),
+ (1533, 960, 414, 400),
+ (947, 784, 400, 414),
+ (1173, 1354, 414, 400),
+ (1459, 474, 400, 414),
+ (1021, 888, 414, 400),
+ (1450, 492, 400, 414),
+ (1398, 889, 414, 400),
+ (1005, 872, 400, 414),
+ (686, 1367, 414, 400),
+ (697, 1371, 414, 400),
+ (694, 1371, 414, 400),
+ (1128, 1377, 414, 400),
+ (950, 787, 414, 400),
+ (1438, 481, 414, 400),
+ (1064, 1238, 414, 400),
+ (1455, 485, 414, 400),
+ (111, 787, 414, 400),
+ (109, 782, 414, 400)]
+
+listScores = [
+ 1.0,
+ 0.5919371843338013,
+ 0.5894666314125061,
+ 0.5689446926116943,
+ 0.5510676503181458,
+ 0.5381054282188416,
+ 0.5311822891235352,
+ 0.5298448204994202,
+ 0.5123124122619629,
+ 0.511840283870697,
+ 0.5080571174621582,
+ 0.5080069303512573,
+ 0.5079731941223145,
+ 0.5000045895576477,
+ 0.49151238799095154,
+ 0.4728872776031494,
+ 0.4612887501716614,
+ 0.4540329873561859,
+ 0.4483684003353119,
+ 0.44806933403015137]
+
+"""
+# Cast boxes to float (optional)
+convertBox = lambda box : list(map(float, box)) 
+listBoxes = list(map(convertBox, listBoxes))
+print (listBoxes)
+"""
+
+indexes1 = cv2.dnn.NMSBoxes(listBoxes, listScores, score_threshold=0.4, nms_threshold=0.3, top_k=4)
+print(indexes1) 
+"""
+-> only the top_2 ?
+[[0]
+[1]]
+"""
+
+print("-------")
+
+indexes2 = cv2.dnn.NMSBoxes(listBoxes, listScores, score_threshold=0.4, nms_threshold=0.3)
+print(indexes2) 
+"""
+->
+[[ 0]
+ [ 1]
+ [ 4]
+ [ 5]
+ [10]
+ [18]]
+"""
+
+
+##### Issue submission checklist
+
+ - [X] I report the issue, it's not a question
+   <!--
+   OpenCV team works with answers.opencv.org, Stack Overflow and other communities
+   to discuss problems. Tickets with question without real issue statement will be
+   closed.
+   -->
+ - [X] I checked the problem with documentation, FAQ, open issues,
+       answers.opencv.org, Stack Overflow, etc and have not found solution
+   <!--
+   Places to check:
+   * OpenCV documentation: https://docs.opencv.org
+   * FAQ page: https://github.com/opencv/opencv/wiki/FAQ
+   * OpenCV forum: https://answers.opencv.org
+   * OpenCV issue tracker: https://github.com/opencv/opencv/issues?q=is%3Aissue
+   * Stack Overflow branch: https://stackoverflow.com/questions/tagged/opencv
+   -->
+ - [X] I updated to latest OpenCV version and the issue is still there
+   <!--
+   master branch for OpenCV 4.x and 3.4 branch for OpenCV 3.x releases.
+   OpenCV team supports only latest release for each branch.
+   The ticket is closed, if the problem is not reproduced with modern version.
+   -->
+ - [X] There is reproducer code and related data files: videos, images, onnx, etc
+   <!--
+   The best reproducer -- test case for OpenCV that we can add to the library.
+   Recommendations for media files and binary files:
+   * Try to reproduce the issue with images and videos in opencv_extra repository
+     to reduce attachment size
+   * Use PNG for images, if you report some CV related bug, but not image reader
+     issue
+   * Attach the image as archite to the ticket, if you report some reader issue.
+     Image hosting services compress images and it breaks the repro code.
+   * Provide ONNX file for some public model or ONNX file with with random weights,
+     if you report ONNX parsing or handling issue. Architecture details diagram
+     from netron tool can be very useful too. See https://lutzroeder.github.io/netron/
+   -->
