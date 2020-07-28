@@ -64,7 +64,7 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
     return cv2.matchTemplate(template, image, method)
 
 
-def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=-1, score_threshold=0.5, searchBox=None):
+def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
     '''
     Find all possible templates locations provided a list of template to search and an image
     Parameters
@@ -140,7 +140,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=-1, 
     return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
     
 
-def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=-1, score_threshold=0.5, maxOverlap=0.25, searchBox=None):
+def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
     '''
     Search each template in the image, and return the best N_object location which offer the best score and which do not overlap
     Parameters

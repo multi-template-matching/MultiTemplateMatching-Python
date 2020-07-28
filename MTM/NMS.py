@@ -14,7 +14,7 @@ The "possible" allowed overlap is set by the variable maxOverlap (between 0 and 
 import cv2
 
 
-def NMS(tableHit, scoreThreshold=0, sortAscending=False, N_object=-1, maxOverlap=0.5):
+def NMS(tableHit, scoreThreshold=0, sortAscending=False, N_object=float("inf"), maxOverlap=0.5):
     '''
     Perform Non-Maxima supression : it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
     This function works both with an optionnal threshold on the score, and number of detected bbox
@@ -49,13 +49,14 @@ def NMS(tableHit, scoreThreshold=0, sortAscending=False, N_object=-1, maxOverlap
         listScores = [1-score for score in listScores] # NMS expect high-score for good predictions
         scoreThreshold = 1-scoreThreshold
         
-    #indexes = cv2.dnn.NMSBoxes(listBoxes, listScores, scoreThreshold, maxOverlap, top_k=N_object) # weird result when top_k=N
     indexes = cv2.dnn.NMSBoxes(listBoxes, listScores, scoreThreshold, maxOverlap)
     
-    if N_object>0: indexes = indexes[:N_object] # alternative to keep the N best detections (ie after the actual NMS)
-
-    indexes  = [index[0] for index in indexes]        # ordered by score
-    outTable = tableHit[tableHit.index.isin(indexes)].sort_values(by=['Score'], ascending=False)
+    if N_object == float("inf"): 
+		indexes  = [ index[0] for index in indexes ] # ordered by score
+    else:
+		indexes  = [ index[0] for index in indexes[:N_object] ]
+		
+	outTable = tableHit.iloc[indexes]
     
     return outTable
 
