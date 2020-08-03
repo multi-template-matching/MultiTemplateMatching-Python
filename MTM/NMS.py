@@ -77,12 +77,12 @@ def NMS(tableHit, scoreThreshold=0, sortAscending=False, N_object=float("inf"), 
             
 if __name__ == "__main__":
     import pandas as pd
-    ListHit =[ 
+    listHit =[ 
             {'TemplateName':1,'BBox':(780, 350, 700, 480), 'Score':0.8},
             {'TemplateName':1,'BBox':(806, 416, 716, 442), 'Score':0.6},
             {'TemplateName':1,'BBox':(1074, 530, 680, 390), 'Score':0.4}
             ]
 
-    FinalHits = NMS( pd.DataFrame(ListHit), scoreThreshold=0.61, sortAscending=False, maxOverlap=0.8, N_object=1 )
+    finalHits = NMS( pd.DataFrame(listHit), scoreThreshold=0.61, sortAscending=False, maxOverlap=0.8, N_object=1 )
 
-    print(FinalHits)
+    print(finalHits)
