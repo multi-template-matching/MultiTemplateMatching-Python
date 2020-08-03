@@ -14,7 +14,7 @@ The "possible" allowed overlap is set by the variable maxOverlap (between 0 and 
 import cv2
 
 
-def NMS(tableHit, scoreThreshold=0, sortAscending=False, N_object=float("inf"), maxOverlap=0.5):
+def NMS(tableHit, scoreThreshold=0.5, sortAscending=False, N_object=float("inf"), maxOverlap=0.5):
     '''
     Perform Non-Maxima supression : it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
     This function works both with an optionnal threshold on the score, and number of detected bbox
