@@ -45,12 +45,26 @@ def NMS(tableHit, scoreThreshold=0, sortAscending=False, N_object=float("inf"), 
     listBoxes  = tableHit["BBox"].to_list()
     listScores = tableHit["Score"].to_list()
     
-    if sortAscending: 
+    if N_object==1:
+        
+        # Get row with highest or lower score
+        if sortAscending:
+            outTable = tableHit[tableHit.Score == tableHit.Score.min()]
+        else:
+            outTable = tableHit[tableHit.Score == tableHit.Score.max()]
+        
+        return outTable
+        
+    
+    # N object > 1 -> do NMS
+    if sortAscending: # invert score to have always high-score for bets prediction 
         listScores = [1-score for score in listScores] # NMS expect high-score for good predictions
         scoreThreshold = 1-scoreThreshold
-        
+    
+    # Do NMS
     indexes = cv2.dnn.NMSBoxes(listBoxes, listScores, scoreThreshold, maxOverlap)
     
+    # Get N best hit
     if N_object == float("inf"): 
         indexes  = [ index[0] for index in indexes ] # ordered by score
     else:
@@ -69,6 +83,6 @@ if __name__ == "__main__":
             {'TemplateName':1,'BBox':(1074, 530, 680, 390), 'Score':0.4}
             ]
 
-    FinalHits = NMS( pd.DataFrame(ListHit), scoreThreshold=0.61, sortAscending=True, maxOverlap=0.8, N_object=2 )
+    FinalHits = NMS( pd.DataFrame(ListHit), scoreThreshold=0.61, sortAscending=False, maxOverlap=0.8, N_object=1 )
 
     print(FinalHits)
