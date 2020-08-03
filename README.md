@@ -3,7 +3,7 @@
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/laurent132.thomas@laposte.net)
 
 # Multi-Template-Matching
-Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
+Multi-Template-Matching is a python package to perform object-recognition in images using one or several smaller template images.  
 The main function `MTM.matchTemplates` returns the best predicted locations provided either a score_threshold and/or the expected number of objects in the image.  
 
 The branch opencl contains some test using the UMat object to run on GPU, but it is actually slow, which can be expected for small dataset as the transfer of the data between the CPU and GPU is slow.
