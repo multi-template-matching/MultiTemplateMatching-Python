@@ -140,8 +140,11 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
             # append to list of potential hit before Non maxima suppression
             listHit.append(newHit)
     
-    return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
-    
+    if listHit:
+        return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
+    else:
+        return pd.DataFrame(columns=["TemplateName", "BBox", "Score"])
+        
 
 def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
     '''
