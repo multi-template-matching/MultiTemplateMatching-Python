@@ -107,18 +107,18 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         if N_object==1: # Detect global Min/Max
             minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(corrMap)
             
-            if method==1:
+            if method in (0,1):
                 Peaks = [minLoc[::-1]] # opposite sorting than in the multiple detection
             
-            elif method in (3,5):
+            else:
                 Peaks = [maxLoc[::-1]]
             
             
         else:# Detect local max or min
-            if method==1: # Difference => look for local minima
+            if method in (0,1): # Difference => look for local minima
                 Peaks = _findLocalMin_(corrMap, score_threshold)
             
-            elif method in (3,5):
+            else:
                 Peaks = _findLocalMax_(corrMap, score_threshold)
             
         
@@ -150,7 +150,8 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
     - method : int 
-                one of OpenCV template matching method (0 to 5), default 5=0-mean cross-correlation
+                one of OpenCV template matching method (1 to 5), default 5=0-mean cross-correlation
+                method 0 is not supported (no NMS implemented for non-bound difference score), use 1 instead 
     - N_object: int
                 expected number of objects in the image
     - score_threshold: float in range [0,1]
@@ -173,8 +174,9 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
         
     tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
     
-    if method == 1:       sortAscending = True
-    elif method in (3,5): sortAscending = False
+    if method == 0: raise ValueError("The method TM_SQDIFF is not supported. Use TM_SQDIFF_NORMED instead.")
+    elif method == 1:     sortAscending = True
+    else:                 sortAscending = False
     
     return NMS(tableHit, score_threshold, sortAscending, N_object, maxOverlap)
     
