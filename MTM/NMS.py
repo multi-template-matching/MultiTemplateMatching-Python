@@ -116,6 +116,9 @@ def NMS(tableHit, scoreThreshold=None, sortAscending=False, N_object=float("inf"
     elif sortAscending : # We keep hit below the threshold
         threshTable = tableHit[ tableHit['Score']<=scoreThreshold ]    
     
+    # The score thresholding might return 1 or 0 hit, which would be an issue line 130/131
+    if len(threshTable.index)<=1: return threshTable
+    
     # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)
     # important as we loop testing the best boxes against the other boxes)
     threshTable.sort_values("Score", ascending=sortAscending, inplace=True) # Warning here is fine
