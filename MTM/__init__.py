@@ -179,9 +179,12 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
         
     tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
     
-    if method == 1:       bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=True)
+    if method in (0,1):  
+        sortAscending = True
+    else: 
+        sortAscending = False
     
-    elif method in (3,5): bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=False)
+    bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=sortAscending)
     
     return bestHits
 
