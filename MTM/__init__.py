@@ -1,6 +1,7 @@
 import cv2
 import numpy  as np
 import pandas as pd
+import warnings
 from skimage.feature import peak_local_max
 from scipy.signal    import find_peaks
 from .version import __version__
@@ -46,7 +47,7 @@ def _findLocalMin_(corrMap, score_threshold=0.4):
     return _findLocalMax_(-corrMap, -score_threshold)
 
 
-def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
+def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
     '''
     Compute score map provided numpy array for template and image.
     Automatically converts images if necessary
@@ -60,8 +61,20 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
         template = np.float32(template)
         image    = np.float32(image)
     
+    if mask: 
+       
+        if method not in (0,3):
+           mask = None
+           warnings.warn("Template matching method not compatible with use of mask (only TM_SQDIFF or TM_CCORR_NORMED).\n-> Ignoring mask.")
+       
+        else: # correct method
+           # Check that mask has the same dimensions and type than template
+            sameDimension = mask.shape == template.shape
+            sameType = mask.dtype == template.dtype
+            if not sameDimension and sameType: mask = None        
+    
     # Compute correlation map
-    return cv2.matchTemplate(template, image, method)
+    return cv2.matchTemplate(template, image, method, mask=mask)
 
 
 def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
@@ -97,7 +110,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         xOffset=yOffset=0
       
     listHit = []
-    for templateName, template in listTemplates:
+    for templateName, template in listTemplates: # put the mask as 3rd tuple member ? but then unwrap in the loop rather
         
         #print('\nSearch with template : ',templateName)
         
