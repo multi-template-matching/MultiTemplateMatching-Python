@@ -82,8 +82,11 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     Find all possible templates locations provided a list of template to search and an image
     Parameters
     ----------
-    - listTemplates : list of tuples (LabelString, Grayscale or RGB numpy array)
-                    templates to search in each image, associated to a label 
+    - listTemplates : list of tuples (LabelString, template, mask (optional))
+                      templates to search in each image, associated to a label
+                      labelstring : string
+                      template    : numpy array (grayscale or RGB)
+                      mask (optional): numpy array, should have the same dimensions and type than the template) 
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
     - method : int 
@@ -108,13 +111,17 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         image = image[yOffset:yOffset+searchHeight, xOffset:xOffset+searchWidth]
     else:
         xOffset=yOffset=0
-      
+    
     listHit = []
-    for templateName, template in listTemplates: # put the mask as 3rd tuple member ? but then unwrap in the loop rather
+    for tempTuple in listTemplates:
         
+        if len(tempTuple)==3 and method in (0,3): templateName, template, mask = tempTuple
+        else: 
+            templateName, template = tempTuple
+            mask = None
         #print('\nSearch with template : ',templateName)
         
-        corrMap = computeScoreMap(template, image, method)
+        corrMap = computeScoreMap(template, image, method, mask=mask)
 
         ## Find possible location of the object 
         if N_object==1: # Detect global Min/Max
