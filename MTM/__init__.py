@@ -71,7 +71,10 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
            # Check that mask has the same dimensions and type than template
             sameDimension = mask.shape == template.shape
             sameType = mask.dtype == template.dtype
-            if not sameDimension and sameType: mask = None        
+            if not (sameDimension and sameType): 
+                mask = None 
+                warnings.warn("Mask does not have the same dimension or bit depth than the template.\n-> Ignoring mask.")
+
     
     # Compute correlation map
     return cv2.matchTemplate(template, image, method, mask=mask)
