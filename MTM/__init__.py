@@ -56,10 +56,11 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
     if template.dtype == "float64" or image.dtype == "float64": 
         raise ValueError("64-bit not supported, max 32-bit")
         
-    # Convert images if not both 8-bit (OpenCV matchTempalte is only defined for 8-bit OR 32-bit)
+    # Convert images if not both 8-bit (OpenCV matchTemplate is only defined for 8-bit OR 32-bit)
     if not (template.dtype == "uint8" and image.dtype == "uint8"):
         template = np.float32(template)
         image    = np.float32(image)
+        if mask: mask = np.float32(mask)
     
     if mask: 
        
