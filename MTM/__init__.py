@@ -118,9 +118,9 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     listHit = []
     for tempTuple in listTemplates:
         
-        if len(tempTuple)==3 and method in (0,3): templateName, template, mask = tempTuple
+        if len(tempTuple)==3 and method in (0,3): templateName, template, mask = tempTuple[:3]
         else: 
-            templateName, template = tempTuple
+            templateName, template = tempTuple[:2]
             mask = None
         #print('\nSearch with template : ',templateName)
         
