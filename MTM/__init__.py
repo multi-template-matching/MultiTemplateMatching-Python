@@ -66,7 +66,7 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
        
         if method not in (0,3):
            mask = None
-           warnings.warn("Template matching method not compatible with use of mask (only TM_SQDIFF or TM_CCORR_NORMED).\n-> Ignoring mask.")
+           warnings.warn("Template matching method not compatible with use of mask (only 0/TM_SQDIFF or 3/TM_CCORR_NORMED).\n-> Ignoring mask.")
        
         else: # correct method
            # Check that mask has the same dimensions and type than template
@@ -127,7 +127,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         
         if len(tempTuple)>=3:
             if method in (0,3): 
-                mask = tempTuple[3]
+                mask = tempTuple[2]
             else:
                 warnings.warn("Template matching method not supporting the use of Mask. Use 0/TM_SQDIFF or 3/TM_CCORR_NORMED.")
         
