@@ -60,9 +60,9 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
     if not (template.dtype == "uint8" and image.dtype == "uint8"):
         template = np.float32(template)
         image    = np.float32(image)
-        if mask: mask = np.float32(mask)
+        if mask is not None: mask = np.float32(mask)
     
-    if mask: 
+    if mask is not None: 
        
         if method not in (0,3):
            mask = None
