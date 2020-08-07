@@ -119,12 +119,17 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     listHit = []
     for tempTuple in listTemplates:
         
-        if len(tempTuple)==3 and method in (0,3): templateName, template, mask = tempTuple[:3]
+        if not isinstance(tempTuple, tuple) or len(tempTuple)==1:
+            raise ValueError("listTemplates should be a list of tuples as ('name','array') or ('name', 'array', 'mask')")
+        
+        elif len(tempTuple)>=3 and method in (0,3): 
+            templateName, template, mask = tempTuple[:3]
+        
         else: 
             templateName, template = tempTuple[:2]
             mask = None
-        #print('\nSearch with template : ',templateName)
         
+        #print('\nSearch with template : ',templateName)
         corrMap = computeScoreMap(template, image, method, mask=mask)
 
         ## Find possible location of the object 
