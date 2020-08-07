@@ -122,12 +122,14 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         if not isinstance(tempTuple, tuple) or len(tempTuple)==1:
             raise ValueError("listTemplates should be a list of tuples as ('name','array') or ('name', 'array', 'mask')")
         
-        elif len(tempTuple)>=3 and method in (0,3): 
-            templateName, template, mask = tempTuple[:3]
+        templateName, template = tempTuple[:2]
+        mask = None
         
-        else: 
-            templateName, template = tempTuple[:2]
-            mask = None
+        if len(tempTuple)>=3:
+            if method in (0,3): 
+                mask = tempTuple[3]
+            else:
+                warnings.warn("Template matching method not supporting the use of Mask. Use 0/TM_SQDIFF or 3/TM_CCORR_NORMED.")
         
         #print('\nSearch with template : ',templateName)
         corrMap = computeScoreMap(template, image, method, mask=mask)
