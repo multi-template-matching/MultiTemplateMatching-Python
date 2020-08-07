@@ -78,7 +78,7 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
 
     
     # Compute correlation map
-    return cv2.matchTemplate(template, image, method, mask=mask)
+    return cv2.matchTemplate(image, template, method, mask=mask)
 
 
 def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
