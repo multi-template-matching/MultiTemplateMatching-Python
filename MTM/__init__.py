@@ -1,3 +1,4 @@
+"""Main code for Multi-Template-Matching (MTM)."""
 import cv2
 import numpy  as np
 import pandas as pd
@@ -11,10 +12,7 @@ from .NMS import NMS
 __all__ = ['NMS']
 
 def _findLocalMax_(corrMap, score_threshold=0.6):
-    '''
-    Get coordinates of the local maximas with values above a threshold in the image of the correlation map
-    '''
-    
+    """Get coordinates of the local maximas with values above a threshold in the image of the correlation map."""
     # IF depending on the shape of the correlation map
     if corrMap.shape == (1,1): ## Template size = Image size -> Correlation map is a single digit')
         
@@ -43,16 +41,18 @@ def _findLocalMax_(corrMap, score_threshold=0.6):
 
 
 def _findLocalMin_(corrMap, score_threshold=0.4):
-    '''Find coordinates of local minimas with values below a threshold in the image of the correlation map'''
+    """Find coordinates of local minimas with values below a threshold in the image of the correlation map."""
     return _findLocalMax_(-corrMap, -score_threshold)
 
 
 def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
-    '''
-    Compute score map provided numpy array for template and image.
-    Automatically converts images if necessary
-    return score map as numpy as array
-    '''
+    """
+    Compute score map provided numpy array for template and image (automatically converts images if necessary).
+    
+    Return 
+    ------
+    score map as numpy array
+    """
     if template.dtype == "float64" or image.dtype == "float64": 
         raise ValueError("64-bit images not supported, max 32-bit")
         
@@ -82,30 +82,36 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
 
 
 def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
-    '''
-    Find all possible templates locations provided a list of template to search and an image
+    """
+    Find all possible templates locations provided a list of templates to search and an image.
+    
     Parameters
     ----------
     - listTemplates : list of tuples (LabelString, template, mask (optional))
                       templates to search in each image, associated to a label
                       labelstring : string
                       template    : numpy array (grayscale or RGB)
-                      mask (optional): numpy array, should have the same dimensions and type than the template) 
+                      mask (optional): numpy array, should have the same dimensions and type than the template 
+    
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
+    
     - method : int 
                 one of OpenCV template matching method (0 to 5), default 5=0-mean cross-correlation
-    - N_object: int
-                expected number of objects in the image, -1 if unknown
+    
+    - N_object: int or float("inf")
+                expected number of objects in the image, default to infinity if unknown
+    
     - score_threshold: float in range [0,1]
-                if N>1, returns local minima/maxima respectively below/above the score_threshold
+                if N_object>1, returns local minima/maxima respectively below/above the score_threshold
+    
     - searchBox : tuple (X, Y, Width, Height) in pixel unit
                 optional rectangular search region as a tuple
     
     Returns
     -------
     - Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float 
-    '''
+    """
     if N_object!=float("inf") and type(N_object)!=int:
         raise TypeError("N_object must be an integer")
         
@@ -175,24 +181,34 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
 
 
 def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
-    '''
-    Search each template in the image, and return the best N_object location which offer the best score and which do not overlap
+    """
+    Search each template in the image, and return the best N_object locations which offer the best score and which do not overlap above the maxOverlap threshold.
+    
     Parameters
     ----------
-    - listTemplates : list of tuples (LabelString, Grayscale or RGB numpy array)
-                    templates to search in each image, associated to a label 
+    - listTemplates : list of tuples (LabelString, template, mask (optional))
+                      templates to search in each image, associated to a label 
+                      labelstring : string
+                      template    : numpy array (grayscale or RGB)
+                      mask (optional): numpy array, should have the same dimensions and type than the template 
+    
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
+    
     - method : int 
-                one of OpenCV template matching method (1 to 5), default 5=0-mean cross-correlation
-                method 0 is not supported (no NMS implemented for non-bound difference score), use 1 instead 
-    - N_object: int
-                expected number of objects in the image
+               one of OpenCV template matching method (1 to 5), default 5=0-mean cross-correlation
+               method 0 is not supported (no NMS implemented for non-bound difference score), use 1 instead 
+    
+    - N_object: int or foat("inf")
+                expected number of objects in the image, default to infinity if unknown
+    
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
+    
     - maxOverlap: float in range [0,1]
                 This is the maximal value for the ratio of the Intersection Over Union (IoU) area between a pair of bounding boxes.
                 If the ratio is over the maxOverlap, the lower score bounding box is discarded.
+    
     - searchBox : tuple (X, Y, Width, Height) in pixel unit
                 optional rectangular search region as a tuple
     
@@ -200,9 +216,9 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     -------
     Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float                 
         if N=1, return the best matches independently of the score_threshold
-        if N<inf, returns up to N best matches that passed the score_threshold
-        if N=inf, returns all matches that passed the score_threshold
-    '''
+        if N<inf, returns up to N best matches that passed the NMS
+        if N=inf, returns all matches that passed the NMS
+    """
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
         
@@ -216,19 +232,24 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     
 
 def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0), labelScale=0.5 ):
-    '''
+    """
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image
     The name of the template can also be displayed on top of the bounding box with showLabel=True
+    
     Parameters
     ----------
     - image  : image in which the search was performed
+    
     - tableHit: list of hit as returned by matchTemplates or findMatches
+    
     - boxThickness: int
                     thickness of bounding box contour in pixels
     - boxColor: (int, int, int)
                 RGB color for the bounding box
+    
     - showLabel: Boolean
                 Display label of the bounding box (field TemplateName)
+    
     - labelColor: (int, int, int)
                 RGB color for the label
     
@@ -236,7 +257,7 @@ def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), sho
     -------
     outImage: RGB image
             original image with predicted template locations depicted as bounding boxes  
-    '''
+    """
     # Convert Grayscale to RGB to be able to see the color bboxes
     if image.ndim == 2: outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
@@ -250,19 +271,25 @@ def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), sho
 
 
 def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
-    '''
+    """
     Same as drawBoxesOnRGB but with Graylevel.
     If a RGB image is provided, the output image will be a grayscale image
+    
     Parameters
     ----------
     - image  : image in which the search was performed
+    
     - tableHit: list of hit as returned by matchTemplates or findMatches
+    
     - boxThickness: int
                 thickness of bounding box contour in pixels
+    
     - boxColor: int
                 Gray level for the bounding box
+    
     - showLabel: Boolean
                 Display label of the bounding box (field TemplateName)
+    
     - labelColor: int
                 Gray level for the label
     
@@ -270,7 +297,7 @@ def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=Fal
     -------
     outImage: Single channel grayscale image
             original image with predicted template locations depicted as bounding boxes
-    '''
+    """
     # Convert RGB to grayscale
     if image.ndim == 3: outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
