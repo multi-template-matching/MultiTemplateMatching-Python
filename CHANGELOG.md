@@ -3,18 +3,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
-### [1.6.1] - SOON
+## [1.6.1] - SOON
 ### Added
 - support mask for matchTemplates and findMatches as in cv2.matchTemplates with method 0 or 3
 - notebook tutorial with mask
 - CHANGELOG.MD
 
-### [1.6.0.post1] - 2020-08-04
+## [1.6.0.post1] - 2020-08-04
 ### Fixed
 - issue when no detection found (see Changed of version 1.5.3.post2)
 
 
-### [1.6.0] - 2020-08-03
+## [1.6.0] - 2020-08-03
 ### Changed
 - NMS is now using the opencv `cv2.dnn.NMSBoxes` function
 - use timeit for benchmark in example notebook
