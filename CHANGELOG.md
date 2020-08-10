@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - notebook tutorial with mask
 - CHANGELOG.MD
 
+### Changed
+- better docstrings
+
 ## [1.6.0.post1] - 2020-08-04
 ### Fixed
 - issue when no detection found (see Changed of version 1.5.3.post2)
