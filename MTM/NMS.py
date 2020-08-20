@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Non-Maxima Supression (NMS) for match template
+Non-Maxima Supression (NMS) for match template.
+
 From a pool of bounding box each predicting possible object locations with a given score, 
 the NMS removes the bounding boxes overlapping with a bounding box of higher score above the maxOverlap threshold
 
 This effectively removes redundant detections of the same object and still allow the detection of close objects (ie small possible overlap)
 The "possible" allowed overlap is set by the variable maxOverlap (between 0 and 1) which is the ratio Intersection over Union (IoU) area for a given pair of overlaping BBoxes
 
+Since version 1.6.0 the NMS is assured by opencv cv2.dnn.NMSBoxes function
 
 @author: Laurent Thomas
 """
@@ -15,33 +17,37 @@ import cv2
 
 
 def NMS(tableHit, scoreThreshold=0.5, sortAscending=False, N_object=float("inf"), maxOverlap=0.5):
-    '''
-    Perform Non-Maxima supression : it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
-    This function works both with an optionnal threshold on the score, and number of detected bbox
-
-    if a scoreThreshold is specified, we first discard any hit below/above the threshold (depending on sortDescending)
-    if sortDescending = True, the hit with score below the treshold are discarded (ie when high score means better prediction ex : Correlation)
-    if sortDescending = False, the hit with score above the threshold are discared (ie when low score means better prediction ex : Distance measure)
-
-    Then the hit are ordered so that we have the best hits first.
-    Then we iterate over the list of hits, taking one hit at a time and checking for overlap with the previous validated hit (the Final Hit list is directly iniitialised with the first best hit as there is no better hit with which to compare overlap)    
+    """
+    Perform Non-Maxima Supression (NMS).
     
-    This iteration is terminate once we have collected N best hit, or if there are no more hit left to test for overlap 
+    it compares the hits after maxima/minima detection, and removes detections overlapping above the maxOverlap  
+    Also removes detections that do not satisfy a minimum score
    
-   INPUT
-    - tableHit         : (Panda DataFrame) Each row is a hit, with columns "TemplateName"(String),"BBox"(x,y,width,height),"Score"(float)
+    INPUT
+    - tableHit         : Pandas DataFrame
+                        List of potential detections as returned by MTM.findMatches.
+                        Each row is a hit, with columns "TemplateName"(String),"BBox"(x,y,width,height),"Score"(float).
                         
-    - scoreThreshold : Float (or None), used to remove hit with too low prediction score. 
-                       If sortAscending=False (ie we use a correlation measure so we want to keep large scores) the scores above that threshold are kept
-                       If True (we use a difference measure ie we want to keep low score), the scores below that threshold are kept
-                       
-    - N_object      : maximum number of hit to return. Default=-1, ie return all hit passing NMS 
-    - maxOverlap    : float between 0 and 1, the maximal overlap authorised between 2 bounding boxes, above this value, the bounding box of lower score is deleted
-    - sortAscending : use True when low score means better prediction (Difference-based score), True otherwise (Correlation score)
+    - scoreThreshold : Float, used to remove low score detections. 
+                       If sortAscending=False, ie when best detections have high scores (correlation method), the detections with score below the threshold are discarded.
+                       If sortAscending=True, ie when best detections have low scores (difference method), the detections with score above the threshold are discarded.
+    
+    - sortAscending : Boolean
+                      use True when low score means better prediction (Difference-based score), False otherwise (Correlation score).
+    
+    - N_object      : int or infinity/float("inf") 
+                      maximum number of best detections to return, to use when the number of object is known. 
+                      Otherwise Default=infinity, ie return all detections passing NMS.
+    
+    - maxOverlap    : float between 0 and 1
+                      the maximal overlap (IoU: Intersection over Union of the areas) authorised between 2 bounding boxes. 
+                      Above this value, the bounding box of lower score is deleted.
+    
 
-    OUTPUT
-    Panda DataFrame with best detection after NMS, it contains max N detection (but potentially less)
-    '''
+    Returns
+    -------
+    Panda DataFrame with best detection after NMS, it contains max N detections (but potentially less)
+    """
     listBoxes  = tableHit["BBox"].to_list()
     listScores = tableHit["Score"].to_list()
     

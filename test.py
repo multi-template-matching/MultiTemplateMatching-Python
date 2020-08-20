@@ -1,6 +1,8 @@
-'''
+"""
+TEST SCRIPT.
+
 Make sure the active directory is the directory of the repo when running the test in a IDE
-'''
+"""
 from skimage.data import coins
 import matplotlib.pyplot as plt
 import MTM, cv2
