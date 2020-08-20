@@ -48,6 +48,8 @@ def _findLocalMin_(corrMap, score_threshold=0.4):
 def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
     """
     Compute score map provided numpy array for template and image (automatically converts images if necessary).
+    A mask can be provided to limit the comparison of the pixel values to a fraction of the template region.
+    The mask should have the same dimensions and image type than the template.
     
     Return 
     ------
@@ -186,7 +188,7 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     
     Parameters
     ----------
-    - listTemplates : list of tuples (LabelString, template, mask (optional))
+    - listTemplates : list of tuples as (LabelString, template, mask (optional))
                       templates to search in each image, associated to a label 
                       labelstring : string
                       template    : numpy array (grayscale or RGB)
