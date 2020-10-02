@@ -29,6 +29,8 @@ If you use this implementation for your research, please cite:
 Thomas, L.S.V., Gehrig, J. Multi-template matching: a versatile tool for object-localization in microscopy images.  
 BMC Bioinformatics 21, 44 (2020). https://doi.org/10.1186/s12859-020-3363-7
 
+Download the citation as a .ris file from the journal website, [here](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-020-3363-7.ris).
+
 # Releases
 Previous github releases were archived to Zenodo, but the best is to use pip to install specific versions.  
 [![DOI](https://zenodo.org/badge/197186256.svg)](https://zenodo.org/badge/latestdoi/197186256)
