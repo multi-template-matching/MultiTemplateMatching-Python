@@ -14,7 +14,9 @@ Once installed, `import MTM`should work.
 Example jupyter notebooks can be downloaded from the tutorial folder of the github repository and executed in the newly configured python environement.  
 
 # Documentation
-The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Python/wiki) section of the repo contains a mini API documentation with description of the key functions of the package.
+The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Python/wiki) section of the repo contains a mini API documentation with description of the key functions of the package.   
+The [website](https://multi-template-matching.github.io/Multi-Template-Matching/) of the project contains some more general documentation.
+
 
 # Examples
 Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
