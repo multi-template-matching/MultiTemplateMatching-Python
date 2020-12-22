@@ -138,7 +138,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         for peak in Peaks :
             score = corrMap[tuple(peak)]
             bbox  = int(peak[1]) + xOffset, int(peak[0]) + yOffset, width, height
-            hit   = [index, score, bbox]
+            hit   = [score, bbox, index]
 
             # append to list of potential hit before Non maxima suppression
             listHit.append(hit)

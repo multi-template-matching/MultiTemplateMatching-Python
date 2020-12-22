@@ -110,10 +110,10 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
     
     # Apply threshold on prediction score
     if sortDescending : # We keep hit above the threshold
-        listHit = [hit for hit in listHit if hit[1]>=scoreThreshold] # hit[1] is the score
+        listHit = [hit for hit in listHit if hit[0]>=scoreThreshold] # hit[0] is the score
     
     else : # We keep rows above the threshold
-        listHit = [hit for hit in listHit if hit[1]<=scoreThreshold]
+        listHit = [hit for hit in listHit if hit[0]<=scoreThreshold]
     
     # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)
     # important as we loop testing the best boxes against the other boxes)
