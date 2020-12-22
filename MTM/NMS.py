@@ -76,15 +76,17 @@ def computeIoU(BBox1,BBox2):
     return IoU
 
 
+# Helper function for the sorting of the list based on score
+hitScore = lambda hit: hit[1]
 
-def NMS(tableHit, scoreThreshold=None, sortAscending=False, N_object=float("inf"), maxOverlap=0.5):
+def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf"), maxOverlap=0.5):
     '''
     Perform Non-Maxima supression : it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
     This function works both with an optionnal threshold on the score, and number of detected bbox
 
     if a scoreThreshold is specified, we first discard any hit below/above the threshold (depending on sortDescending)
-    if sortDescending = True, the hit with score below the treshold are discarded (ie when high score means better prediction ex : Correlation)
-    if sortDescending = False, the hit with score above the threshold are discared (ie when low score means better prediction ex : Distance measure)
+    if sortDescending = True,  the hits with score above the treshold are kept (ie when high score means better prediction ex : Correlation)
+    if sortDescending = False, the hits with score below the threshold are kept (ie when low score means better prediction ex : Distance measure)
 
     Then the hit are ordered so that we have the best hits first.
     Then we iterate over the list of hits, taking one hit at a time and checking for overlap with the previous validated hit (the Final Hit list is directly iniitialised with the first best hit as there is no better hit with which to compare overlap)    
@@ -107,29 +109,25 @@ def NMS(tableHit, scoreThreshold=None, sortAscending=False, N_object=float("inf"
     '''
     
     # Apply threshold on prediction score
-    if scoreThreshold==None :
-        threshTable = tableHit.copy() # copy to avoid modifying the input list in place
+    if sortDescending : # We keep hit above the threshold
+        listHit = [hit for hit in listHit if hit[1]>=scoreThreshold] # hit[1] is the score
     
-    elif not sortAscending : # We keep rows above the threshold
-        threshTable = tableHit[ tableHit['Score']>=scoreThreshold ]
-
-    elif sortAscending : # We keep hit below the threshold
-        threshTable = tableHit[ tableHit['Score']<=scoreThreshold ]    
+    else : # We keep rows above the threshold
+        listHit = [hit for hit in listHit if hit[1]<=scoreThreshold]
     
     # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)
     # important as we loop testing the best boxes against the other boxes)
-    threshTable.sort_values("Score", ascending=sortAscending, inplace=True) # Warning here is fine
-    
+    listHit.sort(reverse=sortDescending, key=hitScore)
     
     # Split the inital pool into Final Hit that are kept and restTable that can be tested
     # Initialisation : 1st keep is kept for sure, restTable is the rest of the list
     #print("\nInitialise final hit list with first best hit")
-    outTable  = threshTable.iloc[[0]].to_dict('records') # double square bracket to recover a DataFrame
-    restTable = threshTable.iloc[1:].to_dict('records')
-    
+    # TO DO: test that the list is long enough
+    hitFinal  = listHit[0:1] # initialize the final list with best hit of the pool
+    hitPool   = listHit[1:]
     
     # Loop to compute overlap
-    while len(outTable)<N_object and restTable: # second condition is restTable is not empty
+    while len(hitFinal)<N_object and hitPool: # second condition is hitPool is not empty
         
         # Report state of the loop
         #print("\n\n\nNext while iteration")
@@ -140,16 +138,18 @@ def NMS(tableHit, scoreThreshold=None, sortAscending=False, N_object=float("inf"
         #print("\n-> Remaining hit list")
         #for hit in restTable: print(hit)
         
-        # pick the next best peak in the rest of peak
-        testHit_dico = restTable[0] # dico
-        test_bbox = testHit_dico['BBox']
+        # Test next hit (always the first of the hit pool)
+        hitTest   = hitPool[0]
+        
+        # Get bbox of test hit
+        test_bbox = hitTest[2] # a hit is [index, score, bbox]
         #print("\nTest BBox:{} for overlap against higher score bboxes".format(test_bbox))
          
         # Loop over hit in outTable to compute successively overlap with testHit
-        for hit_dico in outTable: 
+        for hit in hitFinal: 
             
             # Recover Bbox from hit
-            bbox2 = hit_dico['BBox']     
+            bbox2 = hit[2]
             
             # Compute the Intersection over Union between test_peak and current peak
             IoU = computeIoU(test_bbox, bbox2)
@@ -166,34 +166,22 @@ def NMS(tableHit, scoreThreshold=None, sortAscending=False, N_object=float("inf"
                 #print("IoU below threshold\n")
                 # no overlap for this particular (test_peak,peak) pair, keep looping to test the other (test_peak,peak)
                 continue
-      
         
-        # After testing against all peaks (for loop is over), append or not the peak to final
-        if ToAppend:
-            # Move the test_hit from restTable to outTable
-            #print("Append {} to list of final hits, remove it from Remaining hit list".format(test_hit))
-            outTable.append(testHit_dico)
-            restTable.remove(testHit_dico)
-            
-        else:
-            # only remove the test_peak from restTable
-            #print("Remove {}  from Remaining hit list".format(test_hit))
-            restTable.remove(testHit_dico)
-    
-    
-    # Once function execution is done, return list of hit without overlap
-    #print("\nCollected N expected hit, or no hit left to test")
-    #print("NMS over\n")
-    return pd.DataFrame(outTable)
+        # After testing against all peaks (for loop is over)
+        # 1) remove the hit from the hit pool
+        # 2) append or not the peak to final
+        hitPool.remove(hitTest)
+        if ToAppend: hitFinal.append(hitTest)
+
+    return hitFinal
 
             
 if __name__ == "__main__":
     ListHit =[ 
-            {'TemplateName':1,'BBox':(780, 350, 700, 480), 'Score':0.8},
-            {'TemplateName':1,'BBox':(806, 416, 716, 442), 'Score':0.6},
-            {'TemplateName':1,'BBox':(1074, 530, 680, 390), 'Score':0.4}
+            [1, 0.8, (780,  350, 700, 480)],
+            [1, 0.6, (806,  416, 716, 442)],
+            [1, 0.4, (1074, 530, 680, 390)]
             ]
 
-    FinalHits = NMS( pd.DataFrame(ListHit), scoreThreshold=0.7, sortAscending=False, maxOverlap=0.5  )
-
+    FinalHits = NMS( ListHit, scoreThreshold=0.7, sortDescending=True, maxOverlap=0.5 )
     print(FinalHits)
