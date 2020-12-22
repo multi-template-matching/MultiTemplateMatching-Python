@@ -77,7 +77,7 @@ def computeIoU(BBox1,BBox2):
 
 
 # Helper function for the sorting of the list based on score
-hitScore = lambda hit: hit[1]
+hitScore = lambda hit: hit[0] # return the score from a hit [score, bbox, index]
 
 def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf"), maxOverlap=0.5):
     '''
@@ -127,25 +127,15 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
     hitPool   = listHit[1:]
     
     # Loop to compute overlap
-    while len(hitFinal)<N_object and hitPool: # second condition is hitPool is not empty
+    for hitTest in hitPool: 
         
-        # Report state of the loop
-        #print("\n\n\nNext while iteration")
-        
-        #print("-> Final hit list")
-        #for hit in outTable: print(hit)
-        
-        #print("\n-> Remaining hit list")
-        #for hit in restTable: print(hit)
-        
-        # Test next hit (always the first of the hit pool)
-        hitTest   = hitPool[0]
-        
+        # stop if we collected N_object
+        if len(hitFinal) == N_object: break
+
         # Get bbox of test hit
-        test_bbox = hitTest[2] # a hit is [index, score, bbox]
-        #print("\nTest BBox:{} for overlap against higher score bboxes".format(test_bbox))
-         
-        # Loop over hit in outTable to compute successively overlap with testHit
+        test_bbox = hitTest[1] # a hit is [score, bbox, index]
+        
+        # Loop over confirmed hits to compute successively overlap with testHit
         for hit in hitFinal: 
             
             # Recover Bbox from hit
@@ -170,7 +160,7 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
         # After testing against all peaks (for loop is over)
         # 1) remove the hit from the hit pool
         # 2) append or not the peak to final
-        hitPool.remove(hitTest)
+        #hitPool.remove(hitTest)
         if ToAppend: hitFinal.append(hitTest)
 
     return hitFinal
@@ -183,5 +173,5 @@ if __name__ == "__main__":
             [0.4, (1074, 530, 680, 390),1]
             ]
 
-    finalHits = NMS( listHit, scoreThreshold=0.7, sortDescending=True, maxOverlap=0.5 )
+    finalHits = NMS( listHit, scoreThreshold=0.3, sortDescending=True, maxOverlap=0.8, N_object=2)
     print(finalHits)
