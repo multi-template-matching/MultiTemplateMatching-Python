@@ -79,11 +79,13 @@ def computeIoU(BBox1,BBox2):
 # Helper function for the sorting of the list based on score
 hitScore = lambda hit: hit[0] # return the score from a hit [score, bbox, index]
 
-def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf"), maxOverlap=0.5):
-    '''
-    Perform Non-Maxima supression : it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
-    This function works both with an optionnal threshold on the score, and number of detected bbox
-
+def NMS(listHit, scoreThreshold=0.5, sortDescending=True, N_object=float("inf"), maxOverlap=0.5):
+    """
+    Overlap-based Non-Maxima Supression for bounding-boxes.
+    
+    it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
+    This function works both with a threshold on the score, and an optional expected number of detected bbox
+    
     if a scoreThreshold is specified, we first discard any hit below/above the threshold (depending on sortDescending)
     if sortDescending = True,  the hits with score above the treshold are kept (ie when high score means better prediction ex : Correlation)
     if sortDescending = False, the hits with score below the threshold are kept (ie when low score means better prediction ex : Distance measure)
@@ -92,22 +94,31 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
     Then we iterate over the list of hits, taking one hit at a time and checking for overlap with the previous validated hit (the Final Hit list is directly iniitialised with the first best hit as there is no better hit with which to compare overlap)    
     
     This iteration is terminate once we have collected N best hit, or if there are no more hit left to test for overlap 
-   
-   INPUT
-    - listHit         : list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height) 
-     
-    - scoreThreshold : Float (or None), used to remove hit with too low prediction score. 
-                       If sortDescending=True (ie we use a correlation measure so we want to keep large scores) the scores above that threshold are kept
-                       While if we use sortDescending=False (we use a difference measure ie we want to keep low score), the scores below that threshold are kept
-                       
-    - N_object      : number of best hit to return (by increasing score). Min=1, eventhough it does not really make sense to do NMS with only 1 hit
-    - maxOverlap    : float between 0 and 1, the maximal overlap authorised between 2 bounding boxes, above this value, the bounding box of lower score is deleted
-    - sortAscending : use True when low score means better prediction (Difference-based score), True otherwise (Correlation score)
-
-    OUTPUT
-    List of best detections after NMS, it contains max N_object detections (but potentially less)
-    '''
     
+    Parameters
+    ----------
+    listHit : list of lists or tuples
+        list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height).
+    scoreThreshold : float, optional
+        used to remove hits with too low prediction score. 
+        If sortDescending=True (ie we use a correlation measure so we want to keep large scores) the scores above that threshold are kept
+        while if we use sortDescending=False (we use a difference measure ie we want to keep low score), the scores below that threshold are kept.
+        The default is 0.5.
+    sortDescending : boolean, optional
+        Should be True when high score means better prediction (Correlation score), False otherwise (Difference-based score). The default is True.
+    N_object : integer or float("inf"), optional
+        Maximum number of hits to return (for instance when the number of object in the image is known)
+        The default is float("inf").
+    maxOverlap : float, optional
+        Float between 0 and 1. 
+        Maximal overlap authorised between 2 bounding boxes. Above this value, the bounding box of lower score is deleted. 
+        The default is 0.5.
+
+    Returns
+    -------
+    list
+    List of best detections after NMS, it contains max N_object detections (but potentially less)
+    """
     # Apply threshold on prediction score
     if listHit==[]:
         return listHit
