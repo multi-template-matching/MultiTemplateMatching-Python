@@ -7,7 +7,7 @@ from scipy.signal    import find_peaks
 from .NMS import NMS
 
 __all__ = ['NMS']
-__version__ = '1.5.3post'
+__version__ = '1.5.4'
 
 def _findLocalMax_(corrMap, score_threshold=0.6):
     '''
@@ -69,8 +69,8 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     Find all possible templates locations provided a list of template to search and an image
     Parameters
     ----------
-    - listTemplates : list of tuples (LabelString, Grayscale or RGB numpy array)
-                    templates to search in each image, associated to a label 
+    - listTemplates : list of templates as grayscale or RGB numpy array
+                      templates to search in each image 
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
     - method : int 
@@ -84,7 +84,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     
     Returns
     -------
-    - Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float 
+    - list of hits encoded as [template index, score, (x,y,width, height)]
     '''
     if N_object!=float("inf") and type(N_object)!=int:
         raise TypeError("N_object must be an integer")
@@ -99,8 +99,9 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     else:
         xOffset=yOffset=0
       
+    # The function could alos return lists instead of a dictionnary
     listHit = []
-    for templateName, template in listTemplates:
+    for index, template in enumerate(listTemplates):
         
         #print('\nSearch with template : ',templateName)
         
@@ -135,13 +136,14 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         height, width = template.shape[0:2] # slicing make sure it works for RGB too
         
         for peak in Peaks :
-            coeff  = corrMap[tuple(peak)]
-            newHit = {'TemplateName':templateName, 'BBox': ( int(peak[1])+xOffset, int(peak[0])+yOffset, width, height ) , 'Score':coeff}
+            score = corrMap[tuple(peak)]
+            bbox  = int(peak[1]) + xOffset, int(peak[0]) + yOffset, width, height
+            hit   = [index, score, bbox]
 
             # append to list of potential hit before Non maxima suppression
-            listHit.append(newHit)
+            listHit.append(hit)
     
-    return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
+    return listHit # All possible hits before Non-Maxima Supression
     
 
 def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
@@ -149,8 +151,8 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     Search each template in the image, and return the best N_object location which offer the best score and which do not overlap
     Parameters
     ----------
-    - listTemplates : list of tuples (LabelString, Grayscale or RGB numpy array)
-                    templates to search in each image, associated to a label 
+    - listTemplates : list of templates as 2D grayscale or RGB numpy array
+                      templates to search in each image, associated to a label 
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
     - method : int 
@@ -175,11 +177,11 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
         
-    tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
+    listHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
     
-    if method == 1:       bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=True)
+    if method == 1:       bestHits = NMS(listHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=True)
     
-    elif method in (3,5): bestHits = NMS(tableHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=False)
+    elif method in (3,5): bestHits = NMS(listHit, N_object=N_object, maxOverlap=maxOverlap, sortAscending=False)
     
     return bestHits
 

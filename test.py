@@ -13,6 +13,7 @@ bigCoin   = image[14:14+59,302:302+65]
 
 
 #%% Perform matching
+listHit  = MTM.findMatches([smallCoin, bigCoin], image)
 tableHit = MTM.matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.6, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0) # Correlation-score
 #tableHit = MTM.matchTemplates([('small', smallCoin), ('big', bigCoin)], image, score_threshold=0.4, method=cv2.TM_SQDIFF_NORMED, maxOverlap=0) # Difference-score
 
