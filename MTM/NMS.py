@@ -94,8 +94,8 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
     This iteration is terminate once we have collected N best hit, or if there are no more hit left to test for overlap 
    
    INPUT
-    - tableHit         : (Panda DataFrame) Each row is a hit, with columns "TemplateName"(String),"BBox"(x,y,width,height),"Score"(float)
-                        
+    - listHit         : list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height) 
+     
     - scoreThreshold : Float (or None), used to remove hit with too low prediction score. 
                        If sortDescending=True (ie we use a correlation measure so we want to keep large scores) the scores above that threshold are kept
                        While if we use sortDescending=False (we use a difference measure ie we want to keep low score), the scores below that threshold are kept
@@ -109,8 +109,7 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
     '''
     
     # Apply threshold on prediction score
-    if len(listHit)<=1:
-        # 0 or single hit, no need for NMS
+    if listHit==[]:
         return listHit
     
     if sortDescending : # We keep hits above the threshold
@@ -119,16 +118,15 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
     else : # We keep hits below the threshold
         listHit = [hit for hit in listHit if hit[0]<=scoreThreshold]
     
+    if len(listHit)<=1:
+        # 0 or 1 single hit passed the score threshold
+        return listHit
+    
     # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)
     # important as we loop testing the best boxes against the other boxes)
     listHit.sort(reverse=sortDescending, key=hitScore)
-    
-    if len(listHit)<=1:
-        # 0 or 1 single hit passed the threshold
-        return listHit
-    else:
-        hitFinal  = listHit[0:1] # initialize the final list with best hit of the pool
-        hitPool   = listHit[1:]  # rest of hit to test for NMS
+    hitFinal  = listHit[0:1] # initialize the final list with best hit of the pool
+    hitPool   = listHit[1:]  # rest of hit to test for NMS
     
     # Loop to compute overlap
     for hitTest in hitPool: 
