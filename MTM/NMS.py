@@ -149,7 +149,7 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
         for hit in hitFinal: 
             
             # Recover Bbox from hit
-            bbox2 = hit[2]
+            bbox2 = hit[1]
             
             # Compute the Intersection over Union between test_peak and current peak
             IoU = computeIoU(test_bbox, bbox2)
@@ -177,11 +177,11 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
 
             
 if __name__ == "__main__":
-    ListHit =[ 
-            [1, 0.8, (780,  350, 700, 480)],
-            [1, 0.6, (806,  416, 716, 442)],
-            [1, 0.4, (1074, 530, 680, 390)]
+    listHit =[ 
+            [0.8, (780,  350, 700, 480),0],
+            [0.6, (806,  416, 716, 442),0],
+            [0.4, (1074, 530, 680, 390),1]
             ]
 
-    FinalHits = NMS( ListHit, scoreThreshold=0.7, sortDescending=True, maxOverlap=0.5 )
-    print(FinalHits)
+    finalHits = NMS( listHit, scoreThreshold=0.7, sortDescending=True, maxOverlap=0.5 )
+    print(finalHits)
