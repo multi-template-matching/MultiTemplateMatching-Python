@@ -100,31 +100,35 @@ def NMS(listHit, scoreThreshold=None, sortDescending=True, N_object=float("inf")
                        If sortDescending=True (ie we use a correlation measure so we want to keep large scores) the scores above that threshold are kept
                        While if we use sortDescending=False (we use a difference measure ie we want to keep low score), the scores below that threshold are kept
                        
-    - N_object                 : number of best hit to return (by increasing score). Min=1, eventhough it does not really make sense to do NMS with only 1 hit
+    - N_object      : number of best hit to return (by increasing score). Min=1, eventhough it does not really make sense to do NMS with only 1 hit
     - maxOverlap    : float between 0 and 1, the maximal overlap authorised between 2 bounding boxes, above this value, the bounding box of lower score is deleted
     - sortAscending : use True when low score means better prediction (Difference-based score), True otherwise (Correlation score)
 
     OUTPUT
-    Panda DataFrame with best detection after NMS, it contains max N detection (but potentially less)
+    List of best detections after NMS, it contains max N_object detections (but potentially less)
     '''
     
     # Apply threshold on prediction score
-    if sortDescending : # We keep hit above the threshold
+    if len(listHit)<=1:
+        # 0 or single hit, no need for NMS
+        return listHit
+    
+    if sortDescending : # We keep hits above the threshold
         listHit = [hit for hit in listHit if hit[0]>=scoreThreshold] # hit[0] is the score
     
-    else : # We keep rows above the threshold
+    else : # We keep hits below the threshold
         listHit = [hit for hit in listHit if hit[0]<=scoreThreshold]
     
     # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)
     # important as we loop testing the best boxes against the other boxes)
     listHit.sort(reverse=sortDescending, key=hitScore)
     
-    # Split the inital pool into Final Hit that are kept and restTable that can be tested
-    # Initialisation : 1st keep is kept for sure, restTable is the rest of the list
-    #print("\nInitialise final hit list with first best hit")
-    # TO DO: test that the list is long enough
-    hitFinal  = listHit[0:1] # initialize the final list with best hit of the pool
-    hitPool   = listHit[1:]
+    if len(listHit)<=1:
+        # 0 or 1 single hit passed the threshold
+        return listHit
+    else:
+        hitFinal  = listHit[0:1] # initialize the final list with best hit of the pool
+        hitPool   = listHit[1:]  # rest of hit to test for NMS
     
     # Loop to compute overlap
     for hitTest in hitPool: 
