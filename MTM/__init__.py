@@ -61,7 +61,7 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
     return cv2.matchTemplate(template, image, method)
 
 
-def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, nObjects=float("inf"), score_threshold=0.5, searchBox=None):
+def findMatches(listTemplates, image, nObjects=float("inf"), score_threshold=0.5, searchBox=None):
     """
     Find all possible templates locations provided a list of template to search and an image.
     
@@ -71,8 +71,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, nObjects=floa
                       templates to search in each image 
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
-    - method : int 
-                one of OpenCV template matching method (0 to 5), default 5=0-mean cross-correlation
+
     - nObjects: int
                 expected number of objects in the image
     - score_threshold: float in range [0,1]
@@ -107,25 +106,15 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, nObjects=floa
         
         ## Find possible location of the object 
         if nObjects==1: # Detect global Min/Max
-            minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(corrMap)
-            
-            if method==1:
-                listPeaks = [minLoc[::-1]] # opposite sorting than in the multiple detection
-            
-            elif method in (3,5):
-                listPeaks = [maxLoc[::-1]]
-            
+            #minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(corrMap)
+            #listPeaks = [maxLoc[::-1]]
+            listPeaks = peak_local_max(corrMap, threshold_abs=score_threshold, exclude_border=False, num_peaks=1).tolist()
+            #listPeaks = np.unravel_index(np.argmax(corrMap), corrMap.shape)
             
         else:# Detect local max or min
-            if method==1: # Difference => look for local minima
-                listPeaks = _findLocalMin_(corrMap, score_threshold)
+            listPeaks = _findLocalMax_(corrMap, score_threshold)
             
-            elif method in (3,5):
-                listPeaks = _findLocalMax_(corrMap, score_threshold)
-            
-        
         #print('Initially found',len(listPeaks),'hit with this template')
-        
         
         # Once every peak was detected for this given template
         ## Create a dictionnary for each hit with {'TemplateName':, 'BBox': (x,y,Width, Height), 'Score':coeff}
@@ -143,7 +132,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, nObjects=floa
     return listHit # All possible hits before Non-Maxima Supression
     
 
-def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, nObjects=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
+def matchTemplates(listTemplates, image, nObjects=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
     """
     Search each template in the image, and return the best nObjects location which offer the best score and which do not overlap.
     
@@ -153,8 +142,6 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, nObjects=f
                       templates to search in each image, associated to a label 
     - image  : Grayscale or RGB numpy array
                image in which to perform the search, it should be the same bitDepth and number of channels than the templates
-    - method : int 
-                one of OpenCV template matching method (0 to 5), default 5=0-mean cross-correlation
     - nObjects: int
                 expected number of objects in the image
     - score_threshold: float in range [0,1]
@@ -175,11 +162,8 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, nObjects=f
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
         
-    listHit = findMatches(listTemplates, image, method, nObjects, score_threshold, searchBox)
-    
-    if method == 1:       bestHits = NMS(listHit, nObjects=nObjects, maxOverlap=maxOverlap, sortAscending=True)
-    
-    elif method in (3,5): bestHits = NMS(listHit, nObjects=nObjects, maxOverlap=maxOverlap, sortAscending=False)
+    listHit  = findMatches(listTemplates, image, nObjects, score_threshold, searchBox)
+    bestHits = NMS(listHit, nObjects=nObjects, maxOverlap=maxOverlap, sortAscending=False)
     
     return bestHits
 
