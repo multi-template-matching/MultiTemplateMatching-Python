@@ -227,8 +227,7 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
     tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
     
     if method == 0: raise ValueError("The method TM_SQDIFF is not supported. Use TM_SQDIFF_NORMED instead.")
-    elif method == 1:     sortAscending = True
-    else:                 sortAscending = False
+    sortAscending = True if method==1 else False
     
     return NMS(tableHit, score_threshold, sortAscending, N_object, maxOverlap)
     
