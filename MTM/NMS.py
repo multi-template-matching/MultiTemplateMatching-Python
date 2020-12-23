@@ -11,7 +11,6 @@ The "possible" allowed overlap is set by the variable maxOverlap (between 0 and 
 @author: Laurent Thomas
 """
 from __future__ import division, print_function # for compatibility with Py2
-import pandas as pd
 
 def Point_in_Rectangle(Point, Rectangle):
     '''Return True if a point (x,y) is contained in a Rectangle(x, y, width, height)'''
@@ -79,7 +78,7 @@ def computeIoU(BBox1,BBox2):
 # Helper function for the sorting of the list based on score
 hitScore = lambda hit: hit[0] # return the score from a hit [score, bbox, index]
 
-def NMS(listHit, scoreThreshold=0.5, sortDescending=True, N_object=float("inf"), maxOverlap=0.5):
+def NMS(listHit, scoreThreshold=0.5, sortDescending=True, nObjects=float("inf"), maxOverlap=0.5):
     """
     Overlap-based Non-Maxima Supression for bounding-boxes.
     
@@ -106,7 +105,7 @@ def NMS(listHit, scoreThreshold=0.5, sortDescending=True, N_object=float("inf"),
         The default is 0.5.
     sortDescending : boolean, optional
         Should be True when high score means better prediction (Correlation score), False otherwise (Difference-based score). The default is True.
-    N_object : integer or float("inf"), optional
+    nObjects : integer or float("inf"), optional
         Maximum number of hits to return (for instance when the number of object in the image is known)
         The default is float("inf").
     maxOverlap : float, optional
@@ -117,7 +116,7 @@ def NMS(listHit, scoreThreshold=0.5, sortDescending=True, N_object=float("inf"),
     Returns
     -------
     list
-    List of best detections after NMS, it contains max N_object detections (but potentially less)
+    List of best detections after NMS, it contains max nObjects detections (but potentially less)
     """
     # Apply threshold on prediction score
     if listHit==[]:
@@ -136,32 +135,32 @@ def NMS(listHit, scoreThreshold=0.5, sortDescending=True, N_object=float("inf"),
     # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)
     # important as we loop testing the best boxes against the other boxes)
     listHit.sort(reverse=sortDescending, key=hitScore)
-    hitFinal  = listHit[0:1] # initialize the final list with best hit of the pool
-    hitPool   = listHit[1:]  # rest of hit to test for NMS
+    listHit_final  = listHit[0:1] # initialize the final list with best hit of the pool
+    listHit_test   = listHit[1:]  # rest of hit to test for NMS
     
     # Loop to compute overlap
-    for hitTest in hitPool: 
+    for hitTest in listHit_test: 
         
-        # stop if we collected N_object
-        if len(hitFinal) == N_object: break
+        # stop if we collected nObjects
+        if len(listHit_final) == nObjects: break
 
         # Get bbox of test hit
         test_bbox = hitTest[1] # a hit is [score, bbox, index]
         
         # Loop over confirmed hits to compute successively overlap with testHit
-        for hit in hitFinal: 
+        for hitFinal in listHit_final: 
             
             # Recover Bbox from hit
-            bbox2 = hit[1]
+            bbox2 = hitFinal[1]
             
             # Compute the Intersection over Union between test_peak and current peak
             IoU = computeIoU(test_bbox, bbox2)
             
             # Initialise the boolean value to true before test of overlap
-            ToAppend = True 
+            keepHit = True 
     
             if IoU>maxOverlap:
-                ToAppend = False
+                keepHit = False
                 #print("IoU above threshold\n")
                 break # no need to test overlap with the other peaks
             
@@ -173,10 +172,10 @@ def NMS(listHit, scoreThreshold=0.5, sortDescending=True, N_object=float("inf"),
         # After testing against all peaks (for loop is over)
         # 1) remove the hit from the hit pool
         # 2) append or not the peak to final
-        #hitPool.remove(hitTest)
-        if ToAppend: hitFinal.append(hitTest)
+        #listHit_test.remove(hitTest)
+        if keepHit: listHit_final.append(hitTest)
 
-    return hitFinal
+    return listHit_final
 
             
 if __name__ == "__main__":
@@ -186,5 +185,5 @@ if __name__ == "__main__":
             [0.4, (1074, 530, 680, 390),1]
             ]
 
-    finalHits = NMS( listHit, scoreThreshold=0.3, sortDescending=True, maxOverlap=0.8, N_object=2)
+    finalHits = NMS( listHit, scoreThreshold=0.3, sortDescending=True, maxOverlap=0.8, nObjects=2)
     print(finalHits)
