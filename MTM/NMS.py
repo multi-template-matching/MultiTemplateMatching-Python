@@ -78,7 +78,7 @@ def computeIoU(BBox1,BBox2):
 # Helper function for the sorting of the list based on score
 hitScore = lambda hit: hit[0] # return the score from a hit [score, bbox, index]
 
-def NMS(listHit, scoreThreshold=0.5, sortDescending=True, nObjects=float("inf"), maxOverlap=0.5):
+def NMS(listHit, maxOverlap=0.5, nObjects=float("inf"), sortDescending=True):
     """
     Overlap-based Non-Maxima Supression for bounding-boxes.
     
@@ -98,11 +98,6 @@ def NMS(listHit, scoreThreshold=0.5, sortDescending=True, nObjects=float("inf"),
     ----------
     listHit : list of lists or tuples
         list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height).
-    scoreThreshold : float, optional
-        used to remove hits with too low prediction score. 
-        If sortDescending=True (ie we use a correlation measure so we want to keep large scores) the scores above that threshold are kept
-        while if we use sortDescending=False (we use a difference measure ie we want to keep low score), the scores below that threshold are kept.
-        The default is 0.5.
     sortDescending : boolean, optional
         Should be True when high score means better prediction (Correlation score), False otherwise (Difference-based score). The default is True.
     nObjects : integer or float("inf"), optional
@@ -118,18 +113,8 @@ def NMS(listHit, scoreThreshold=0.5, sortDescending=True, nObjects=float("inf"),
     list
     List of best detections after NMS, it contains max nObjects detections (but potentially less)
     """
-    # Apply threshold on prediction score
-    if listHit==[]:
-        return listHit
-    
-    if sortDescending : # We keep hits above the threshold
-        listHit = [hit for hit in listHit if hit[0]>=scoreThreshold] # hit[0] is the score
-    
-    else : # We keep hits below the threshold
-        listHit = [hit for hit in listHit if hit[0]<=scoreThreshold]
-    
     if len(listHit)<=1:
-        # 0 or 1 single hit passed the score threshold
+        # 0 or 1 single hit passed to the function
         return listHit
     
     # Sort score to have best predictions first (ie lower score if difference-based, higher score if correlation-based)

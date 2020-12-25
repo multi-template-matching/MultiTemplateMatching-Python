@@ -163,7 +163,7 @@ def matchTemplates(listTemplates, image, nObjects=float("inf"), score_threshold=
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
         
     listHit  = findMatches(listTemplates, image, nObjects, score_threshold, searchBox)
-    bestHits = NMS(listHit, nObjects=nObjects, maxOverlap=maxOverlap, sortAscending=False)
+    bestHits = NMS(listHit, maxOverlap, nObjects)
     
     return bestHits
 
