@@ -10,12 +10,17 @@ import numpy as np
 image     = coins()
 smallCoin = image[37:37+38, 80:80+41]
 bigCoin   = image[14:14+59,302:302+65]
+
+asHigh  = image[:,10:50]
+asLarge = image[50:70,:]
+
 listTemplate = [smallCoin, bigCoin]
 
 
 #%% Perform matching
 listHit      = MTM.findMatches(listTemplate, image)
 singleObject = MTM.findMatches(listTemplate, image, nObjects=1) # there should be 1 top hit per template
+
 finalHits    = MTM.matchTemplates(listTemplate, image, score_threshold=0.6, maxOverlap=0) 
 
 print("Found {} coins".format(len(finalHits)))
