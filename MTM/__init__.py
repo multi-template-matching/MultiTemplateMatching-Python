@@ -8,48 +8,24 @@ from .NMS import NMS
 __all__ = ['NMS']
 __version__ = '1.5.4'
 
-def _findLocalMax_(corrMap, score_threshold=0.6):
-    """Get coordinates of the local maximas with values above a threshold in the image of the correlation map."""
+def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
+    """Get coordinates of the global (nnObjects=1) or local maximas with values above a threshold in the image of the correlation map."""
     # IF depending on the shape of the correlation map
-    if corrMap.shape == (1,1): ## Template size = Image size -> Correlation map is a single digit')
-        
-        if corrMap[0,0]>=score_threshold:
-            listPeaks = np.array([[0,0]])
-        else:
-            listPeaks = []
+    if corrMap.shape == (1,1): ## Template size = Image size -> Correlation map is a single digit representing the score
+        listPeaks = np.array([[0,0]]) if corrMap[0,0]>=score_threshold else []
     
-    else: # Correlation map is 2D
-        listPeaks = peak_local_max(corrMap, threshold_abs=score_threshold, exclude_border=False).tolist()
-        
+    else: # Correlation map is a 1D or 2D array
+        nPeaks = 1 if nObjects==1 else float("inf") # global maxima detection if nObject=1 (find best hit of the score map)
+        # otherwise local maxima detection (ie find all peaks), DONT LIMIT to nObjects, more than nObjects detections might be needed for NMS
+        listPeaks = peak_local_max(corrMap, 
+                                   threshold_abs=score_threshold, 
+                                   exclude_border=False, 
+                                   num_peaks=nPeaks).tolist()
+    
     return listPeaks
 
 
-
-def _findLocalMin_(corrMap, score_threshold=0.4):
-    """Find coordinates of local minimas with values below a threshold in the image of the correlation map."""
-    return _findLocalMax_(-corrMap, -score_threshold)
-
-
-def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED):
-    """
-    Compute score map provided numpy array for template and image.
-    
-    Automatically converts images if necessary
-    return score map as numpy as array
-    """
-    if template.dtype == "float64" or image.dtype == "float64": 
-        raise ValueError("64-bit not supported, max 32-bit")
-        
-    # Convert images if not both 8-bit (OpenCV matchTempalte is only defined for 8-bit OR 32-bit)
-    if not (template.dtype == "uint8" and image.dtype == "uint8"):
-        template = np.float32(template)
-        image    = np.float32(image)
-    
-    # Compute correlation map
-    return cv2.matchTemplate(template, image, method)
-
-
-def findMatches(listTemplates, image, nObjects=float("inf"), score_threshold=0.5, searchBox=None):
+def findMatches(listTemplates, image, score_threshold=0.5, nObjects=float("inf"), searchBox=None):
     """
     Find all possible templates locations provided a list of template to search and an image.
     
@@ -89,33 +65,16 @@ def findMatches(listTemplates, image, nObjects=float("inf"), score_threshold=0.5
         
         #print('\nSearch with template : ',templateName)
         
-        #corrMap = computeScoreMap(template, image, method)
-        corrMap = match_template(image, template)
-        
-        ## Find possible location of the object 
-        if nObjects==1: # Detect global Min/Max
-            #minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(corrMap)
-            #listPeaks = [maxLoc[::-1]]
-            listPeaks = peak_local_max(corrMap, threshold_abs=score_threshold, exclude_border=False, num_peaks=1).tolist()
-            #listPeaks = np.unravel_index(np.argmax(corrMap), corrMap.shape)
-            
-        else:# Detect local max or min
-            listPeaks = _findLocalMax_(corrMap, score_threshold)
-            
-        #print('Initially found',len(listPeaks),'hit with this template')
-        
-        # Once every peak was detected for this given template
-        ## Create a dictionnary for each hit with {'TemplateName':, 'BBox': (x,y,Width, Height), 'Score':coeff}
+        corrMap   = match_template(image, template)
+        listPeaks = findMaximas(corrMap, score_threshold, nObjects)
         
         height, width = template.shape[0:2] # slicing make sure it works for RGB too
         
         for peak in listPeaks :
             score = corrMap[tuple(peak)]
             bbox  = int(peak[1]) + xOffset, int(peak[0]) + yOffset, width, height
-            hit   = [score, bbox, index]
-
-            # append to list of potential hit before Non maxima suppression
-            listHit.append(hit)
+            hit   = [score, bbox, index]            
+            listHit.append(hit) # append to list of potential hit before Non maxima suppression
     
     return listHit # All possible hits before Non-Maxima Supression
     
