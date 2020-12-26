@@ -17,22 +17,10 @@ def _findLocalMax_(corrMap, score_threshold=0.6):
             listPeaks = np.array([[0,0]])
         else:
             listPeaks = []
-
-    # use scipy find_peaks for the 1D cases (would allow to specify the relative threshold for the score directly here rather than in the NMS
-    elif corrMap.shape[0] == 1:     ## Template is as high as the image, the correlation map is a 1D-array
-        listPeaks = find_peaks(corrMap[0], height=score_threshold) # corrMap[0] to have a proper 1D-array
-        listPeaks = [[0,i] for i in listPeaks[0]] # 0,i since one coordinate is fixed (the one for which Template = Image)
-        
-
-    elif corrMap.shape[1] == 1: ## Template is as wide as the image, the correlation map is a 1D-array
-        #listPeaks    = argrelmax(corrMap, mode="wrap")
-        listPeaks = find_peaks(corrMap[:,0], height=score_threshold)
-        listPeaks = [[i,0] for i in listPeaks[0]]
-
-
-    else: # Correlatin map is 2D
+    
+    else: # Correlation map is 2D
         listPeaks = peak_local_max(corrMap, threshold_abs=score_threshold, exclude_border=False).tolist()
-
+        
     return listPeaks
 
 
