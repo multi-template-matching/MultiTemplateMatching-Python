@@ -115,11 +115,11 @@ def matchTemplates(listTemplates, image, score_threshold=0.5, maxOverlap=0.25, n
     return bestHits
 
 
-def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0), labelScale=0.5 ):
+def drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00) ):
     """
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image.
+    TO DO: USe a different color for every template index
     
-    The name of the template can also be displayed on top of the bounding box with showLabel=True
     Parameters
     ----------
     - image  : image in which the search was performed
@@ -142,15 +142,14 @@ def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), sho
     if image.ndim == 2: outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
         
-    for index, row in tableHit.iterrows():
-        x,y,w,h = row['BBox']
+    for hit in listHit:
+        x,y,w,h = hit[1]
         cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-        if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     
     return outImage
 
 
-def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
+def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255):
     """
     Same as drawBoxesOnRGB but with Graylevel.
     
