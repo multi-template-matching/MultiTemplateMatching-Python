@@ -79,7 +79,7 @@ def findMatches(listTemplates, image, score_threshold=0.5, nObjects=float("inf")
     return listHit # All possible hits before Non-Maxima Supression
     
 
-def matchTemplates(listTemplates, image, nObjects=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
+def matchTemplates(listTemplates, image, score_threshold=0.5, maxOverlap=0.25, nObjects=float("inf"), searchBox=None):
     """
     Search each template in the image, and return the best nObjects location which offer the best score and which do not overlap.
     
@@ -109,7 +109,7 @@ def matchTemplates(listTemplates, image, nObjects=float("inf"), score_threshold=
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
         
-    listHit  = findMatches(listTemplates, image, nObjects, score_threshold, searchBox)
+    listHit  = findMatches(listTemplates, image, score_threshold, nObjects, searchBox)
     bestHits = NMS(listHit, maxOverlap, nObjects)
     
     return bestHits
