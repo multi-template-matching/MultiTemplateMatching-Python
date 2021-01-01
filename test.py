@@ -3,7 +3,8 @@ Make sure the active directory is the directory of the repo when running the tes
 '''
 from skimage.data import coins
 import matplotlib.pyplot as plt
-import MTM, cv2
+import MTM
+print( MTM.__version__ )
 import numpy as np
 
 #%% Get image and templates by cropping
@@ -27,7 +28,7 @@ print("Found {} coins".format(len(finalHits)))
 print(finalHits)
 
 #%% Display matches
-Overlay = MTM.drawBoxesOnRGB(image, finalHits, showLabel=True)
+Overlay = MTM.drawBoxesOnGray(image, finalHits, thickness=2)
 plt.figure()
 plt.imshow(Overlay)
 
