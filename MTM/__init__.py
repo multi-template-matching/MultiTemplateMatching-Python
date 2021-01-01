@@ -1,8 +1,7 @@
 import cv2
 import numpy  as np
-from skimage.feature import peak_local_max, match_template
+from skimage import draw, feature, morphology
 from scipy.signal    import find_peaks
-
 from .NMS import NMS
 
 __all__ = ['NMS']
@@ -17,7 +16,7 @@ def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
     else: # Correlation map is a 1D or 2D array
         nPeaks = 1 if nObjects==1 else float("inf") # global maxima detection if nObject=1 (find best hit of the score map)
         # otherwise local maxima detection (ie find all peaks), DONT LIMIT to nObjects, more than nObjects detections might be needed for NMS
-        listPeaks = peak_local_max(corrMap, 
+        listPeaks = feature.peak_local_max(corrMap, 
                                    threshold_abs=score_threshold, 
                                    exclude_border=False, 
                                    num_peaks=nPeaks).tolist()
@@ -65,7 +64,7 @@ def findMatches(listTemplates, image, score_threshold=0.5, nObjects=float("inf")
         
         #print('\nSearch with template : ',templateName)
         
-        corrMap   = match_template(image, template)
+        corrMap   = feature.match_template(image, template)
         listPeaks = findMaximas(corrMap, score_threshold, nObjects)
         
         height, width = template.shape[0:2] # slicing make sure it works for RGB too
@@ -115,7 +114,7 @@ def matchTemplates(listTemplates, image, score_threshold=0.5, maxOverlap=0.25, n
     return bestHits
 
 
-def drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00) ):
+def drawBoxesOnRGB(image, listHit, listTemplateNames=None, boxThickness=2, boxColor=(255, 255, 00) ):
     """
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image.
     TO DO: USe a different color for every template index
@@ -143,13 +142,14 @@ def drawBoxesOnRGB(image, listHit, boxThickness=2, boxColor=(255, 255, 00) ):
     else:               outImage = image.copy()
         
     for hit in listHit:
-        x,y,w,h = hit[1]
-        cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-    
+        x,y,width,height = hit[1]
+        rr, cc = draw.rectangle_perimeter(start=(y,x), extent=(height, width))
+        outImage[rr, cc] = 1
+        
     return outImage
 
 
-def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255):
+def drawBoxesOnGray(image, listHit, listTemplateNames=None, thickness=2, boxColor=255):
     """
     Same as drawBoxesOnRGB but with Graylevel.
     
@@ -176,10 +176,20 @@ def drawBoxesOnGray(image, listHit, boxThickness=2, boxColor=255):
     # Convert RGB to grayscale
     if image.ndim == 3: outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
-        
-    for index, row in tableHit.iterrows():
-        x,y,w,h = row['BBox']
-        cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-        if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
+    
+    mask = np.zeros_like(outImage, dtype="bool")
+    for hit in listHit:
+        x,y,width,height = hit[1]
+        rr, cc = draw.rectangle_perimeter(start=(y,x), extent=(height, width))
+        mask[rr, cc] = True # boolean mask
+
+    # Thicken rectangle contour
+    if thickness>1: 
+        mask = morphology.dilation(mask, morphology.square(width=thickness))
+    
+    # Overlay rectangle on the image
+    outImage[mask] = boxColor
+    
+    #if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     
     return outImage
