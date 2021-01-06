@@ -15,6 +15,7 @@ bigCoin   = image[14:14+59,302:302+65]
 asHigh  = image[:,10:50]
 asLarge = image[50:70,:]
 
+names = ("small", "big")
 listTemplate = [smallCoin, bigCoin]
 
 
@@ -26,6 +27,14 @@ finalHits    = MTM.matchTemplates(listTemplate, image, score_threshold=0.6, maxO
 
 print("Found {} coins".format(len(finalHits)))
 print(finalHits)
+
+#%% Add template name
+print("\nAdding names")
+for hit in finalHits:
+    templateName = names[ hit[2] ]
+    hit.append(templateName)
+    
+print (np.array(finalHits)) # better formatting with array
 
 #%% Display matches
 overlay = MTM.drawBoxesOnRGB(image, finalHits, thickness=1)
