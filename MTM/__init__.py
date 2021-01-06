@@ -1,6 +1,7 @@
 import cv2
 import numpy  as np
-from skimage import draw, feature, morphology
+import matplotlib.pyplot as plt
+from skimage import draw, feature, morphology, color
 from scipy.signal    import find_peaks
 from .NMS import NMS
 
@@ -114,10 +115,12 @@ def matchTemplates(listTemplates, image, score_threshold=0.5, maxOverlap=0.25, n
     return bestHits
 
 
-def drawBoxesOnRGB(image, listHit, listTemplateNames=None, boxThickness=2, boxColor=(255, 255, 00) ):
+def drawBoxesOnRGB(image, listHit, thickness=2, colour=(255,0,0)):
     """
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image.
-    TO DO: USe a different color for every template index
+    TO DO: 
+        -Use a different color for every template index, need to draw sequentially for each template
+        draw on a color mask first and then burn the mask ?
     
     Parameters
     ----------
@@ -138,18 +141,31 @@ def drawBoxesOnRGB(image, listHit, listTemplateNames=None, boxThickness=2, boxCo
             original image with predicted template locations depicted as bounding boxes  
     """
     # Convert Grayscale to RGB to be able to see the color bboxes
-    if image.ndim == 2: outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) # convert to RGB to be able to show detections as color box on grayscale image
+    if image.ndim == 2: outImage = color.gray2rgb(image) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
-        
+    
+    palette = plt.cm.Set3.colors
+    nColors = len(palette)
+    
+    mask = np.zeros(outImage.shape[:2], dtype="bool") # 1D boolean mask with True when bbox
     for hit in listHit:
         x,y,width,height = hit[1]
+        template = hit[2]
+        colorIndex = template % nColors # will return an integer in the range of palette
         rr, cc = draw.rectangle_perimeter(start=(y,x), extent=(height, width))
-        outImage[rr, cc] = 1
+        mask[rr, cc] = True
+    
+    # Thicken rectangle contour
+    if thickness>1: 
+        mask = morphology.dilation(mask, morphology.square(width=thickness))
+    
+    # Overlay rectangle on the image
+    outImage[mask] = colour
         
     return outImage
 
 
-def drawBoxesOnGray(image, listHit, listTemplateNames=None, thickness=2, boxColor=255):
+def drawBoxesOnGray(image, listHit, thickness=2, gray=255):
     """
     Same as drawBoxesOnRGB but with Graylevel.
     
@@ -158,15 +174,11 @@ def drawBoxesOnGray(image, listHit, listTemplateNames=None, thickness=2, boxColo
     Parameters
     ----------
     - image  : image in which the search was performed
-    - tableHit: list of hit as returned by matchTemplates or findMatches
-    - boxThickness: int
+    - listHit: list of hit as returned by matchTemplates or findMatches
+    - thickness: int
                 thickness of bounding box contour in pixels
-    - boxColor: int
+    - gray: int
                 Gray level for the bounding box
-    - showLabel: Boolean
-                Display label of the bounding box (field TemplateName)
-    - labelColor: int
-                Gray level for the label
     
     Returns
     -------
@@ -174,7 +186,7 @@ def drawBoxesOnGray(image, listHit, listTemplateNames=None, thickness=2, boxColo
             original image with predicted template locations depicted as bounding boxes
     """
     # Convert RGB to grayscale
-    if image.ndim == 3: outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) # convert to RGB to be able to show detections as color box on grayscale image
+    if image.ndim == 3: outImage = color.rgb2gray(image) # convert to RGB to be able to show detections as color box on grayscale image
     else:               outImage = image.copy()
     
     mask = np.zeros_like(outImage, dtype="bool")
@@ -188,7 +200,7 @@ def drawBoxesOnGray(image, listHit, listTemplateNames=None, thickness=2, boxColo
         mask = morphology.dilation(mask, morphology.square(width=thickness))
     
     # Overlay rectangle on the image
-    outImage[mask] = boxColor
+    outImage[mask] = gray
     
     #if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA) 
     

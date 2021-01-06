@@ -28,9 +28,9 @@ print("Found {} coins".format(len(finalHits)))
 print(finalHits)
 
 #%% Display matches
-Overlay = MTM.drawBoxesOnGray(image, finalHits, thickness=2)
+overlay = MTM.drawBoxesOnRGB(image, finalHits, thickness=1)
 plt.figure()
-plt.imshow(Overlay)
+plt.imshow(overlay)
 
 #%% Use GluonCV for display
 import gluoncv as gcv
