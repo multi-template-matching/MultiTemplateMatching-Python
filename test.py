@@ -15,25 +15,18 @@ bigCoin   = image[14:14+59,302:302+65]
 asHigh  = image[:,10:50]
 asLarge = image[50:70,:]
 
-names = ("small", "big")
-listTemplate = [smallCoin, bigCoin]
+listLabels = ["small", "big"]
+listTemplates = [smallCoin, bigCoin]
 
 
 #%% Perform matching
-listHit      = MTM.findMatches(listTemplate, image)
-singleObject = MTM.findMatches(listTemplate, image, nObjects=1) # there should be 1 top hit per template
+listHit      = MTM.findMatches(image, listTemplates, listLabels)
+singleObject = MTM.findMatches(image, listTemplates, listLabels, nObjects=1)  # there should be 1 top hit per template
 
-finalHits    = MTM.matchTemplates(listTemplate, image, score_threshold=0.6, maxOverlap=0) 
+finalHits = MTM.matchTemplates(image, listTemplates, listLabels, score_threshold=0.6, maxOverlap=0)
 
 print("Found {} coins".format(len(finalHits)))
 print(finalHits)
-
-#%% Add template name
-print("\nAdding names")
-for hit in finalHits:
-    templateName = names[ hit[2] ]
-    hit.append(templateName)
-    
 print (np.array(finalHits)) # better formatting with array
 
 #%% Display matches
@@ -47,7 +40,7 @@ import gluoncv as gcv
 """
 # for loop needed
 # Convert from x,y,w,h to xmin, ymin, xmax, ymax
-BBoxes_xywh = np.array( finalHits["BBox"].tolist() ) 
+BBoxes_xywh = np.array( finalHits["BBox"].tolist() )
 BBoxes_xyxy = gcv.utils.bbox.bbox_xywh_to_xyxy(BBoxes_xywh)
 
 Overlay2 = gcv.utils.viz.cv_plot_bbox(cv2.cvtColor(image, cv2.COLOR_GRAY2RGB), BBoxes_xyxy.astype("float64"), scores=finalHits["Score"].to_numpy(), thresh=0  )
