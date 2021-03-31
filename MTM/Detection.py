@@ -24,7 +24,9 @@ class BBox(polygon.Polygon):
     label, string (optional)
         label for the detection (e.g. a category name or template name)
     """
-    def __init__(self, x, y, width, height, score, template_index=0, label=""):
+
+    def __init__(self, bbox, score, template_index=0, label=""):
+        x, y, width, height = bbox
         super().__init__( [(x,y), (x+width-1,y), (x+width-1, y+height-1), (x, y+height-1)] )
         self.score = score
         self.template_index = template_index
@@ -74,6 +76,6 @@ class BBox(polygon.Polygon):
 
 
 if __name__ == "__main__":
-    detection = Detection(0,0,10,10,0.5,label="Test")
+    detection = BBox((0, 0, 10, 10), 0.5, label="Test")
     print(detection)
     print([detection, detection])
