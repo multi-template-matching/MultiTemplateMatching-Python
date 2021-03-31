@@ -7,7 +7,6 @@ Detected locations are represented as bounding boxes.
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import draw, feature, morphology, color
-from scipy.signal import find_peaks
 from .NMS import NMS
 from .Detection import BBox
 
@@ -24,9 +23,9 @@ def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
         nPeaks = 1 if nObjects==1 else float("inf") # global maxima detection if nObject=1 (find best hit of the score map)
         # otherwise local maxima detection (ie find all peaks), DONT LIMIT to nObjects, more than nObjects detections might be needed for NMS
         listPeaks = feature.peak_local_max(corrMap,
-                                   threshold_abs=score_threshold,
-                                   exclude_border=False,
-                                   num_peaks=nPeaks).tolist()
+                                           threshold_abs=score_threshold,
+                                           exclude_border=False,
+                                           num_peaks=nPeaks).tolist()
 
     return listPeaks
 
