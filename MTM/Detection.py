@@ -44,7 +44,7 @@ class BBox(polygon.Polygon):
 
     def __str__(self):
         return ("({:.2f}, xyxy:{}, {})").format(self.get_score(),
-                                                self.bounds,
+                                                tuple(map(int, self.bounds)),
                                                 self.get_label())
 
     def __repr__(self):
