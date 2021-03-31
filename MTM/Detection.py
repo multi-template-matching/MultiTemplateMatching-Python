@@ -43,9 +43,9 @@ class BBox(polygon.Polygon):
         return self.template_index
 
     def __str__(self):
-        return ("({}, {}, xyxy:{})").format(self.get_label(),
-                                        self.get_score(),
-                                        self.bounds)
+        return ("({:.2f}, xyxy:{}, {})").format(self.get_score(),
+                                                self.bounds,
+                                                self.get_label())
 
     def __repr__(self):
         return self.__str__()
