@@ -15,8 +15,7 @@ from __future__ import division, print_function # for compatibility with Py2
 
 def computeIoU(detection1, detection2):
     '''
-    Compute the IoU (Intersection over Union) between 2 rectangular bounding boxes defined by the top left (Xtop,Ytop) and bottom right (Xbot, Ybot) pixel coordinates
-    Code adapted from https://www.pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/
+    Compute the IoU (Intersection over Union) between 2 Detections object
     '''
     if not (detection1.overlaps(detection2) or
             detection1.contains(detection2) or
@@ -34,9 +33,8 @@ def NMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=Tr
     Overlap-based Non-Maxima Supression for bounding-boxes.
 
     it compares the hits after maxima/minima detection, and removes the ones that are too close (too large overlap)
-    This function works both with a threshold on the score, and an optional expected number of detected bbox
+    This function works with an optional expected number of objects to detect.
 
-    if a scoreThreshold is specified, we first discard any hit below/above the threshold (depending on sortDescending)
     if sortDescending = True,  the hits with score above the treshold are kept (ie when high score means better prediction ex : Correlation)
     if sortDescending = False, the hits with score below the threshold are kept (ie when low score means better prediction ex : Distance measure)
 
@@ -108,11 +106,11 @@ def NMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=Tr
 
 
 if __name__ == "__main__":
-    from Detection import Detection
+    from Detection import BoundingBox
     listDetections = [
-        Detection(780, 350, 700, 480, 0.8),
-        Detection(806, 416, 716, 442, 0.6),
-        Detection(1074, 530, 680, 390, 0.4)
+        BoundingBox((780, 350, 700, 480), 0.8),
+        BoundingBox((806, 416, 716, 442), 0.6),
+        BoundingBox((1074, 530, 680, 390), 0.4)
         ]
 
     finalHits = NMS(listDetections,

@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import draw, feature, morphology, color
 from .NMS import NMS
-from .Detection import BBox
+from .Detection import BoundingBox
 
 __all__ = ['NMS']
 __version__ = '1.5.4'
@@ -88,7 +88,7 @@ def findMatches(image,
                      int(peak[0]) + yOffset,
                      width, height)
 
-            hit = BBox(bbox, score, index, label)
+            hit = BoundingBox(bbox, score, index, label)
             listHit.append(hit) # append to list of potential hit before Non maxima suppression
 
     return listHit # All possible hits before Non-Maxima Supression

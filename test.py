@@ -35,9 +35,10 @@ plt.figure()
 plt.imshow(overlay)
 
 #%% Use GluonCV for display
+"""
 import gluoncv as gcv
 
-"""
+
 # for loop needed
 # Convert from x,y,w,h to xmin, ymin, xmax, ymax
 BBoxes_xywh = np.array( finalHits["BBox"].tolist() )

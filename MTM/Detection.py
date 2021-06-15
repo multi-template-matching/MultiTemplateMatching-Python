@@ -6,7 +6,7 @@ Good for skimage not for opencv NMSBoxes
 """
 from shapely.geometry import polygon, box
 
-class BBox(polygon.Polygon):
+class BoundingBox(polygon.Polygon):
     """
     Describe a detection as a rectangular bounding box.
 
@@ -76,6 +76,6 @@ class BBox(polygon.Polygon):
 
 
 if __name__ == "__main__":
-    detection = BBox((0, 0, 10, 10), 0.5, label="Test")
+    detection = BoundingBox((0, 0, 10, 10), 0.5, label="Test")
     print(detection)
     print([detection, detection])
