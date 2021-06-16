@@ -28,4 +28,4 @@ print("Found {} detections".format(len(finalHits)))
 print (np.array(finalHits)) # better formatting with array
 
 #%% Display matches
-MTM.plotDetections(image, finalHits)
+MTM.plotDetections(image, finalHits, showLegend = True)

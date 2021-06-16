@@ -6,6 +6,8 @@ Detected locations are represented as bounding boxes.
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import warnings
+from matplotlib.lines import Line2D
 from skimage import feature
 from .NMS import NMS
 from .Detection import BoundingBox
@@ -111,7 +113,7 @@ def findMatches(image,
 
 def matchTemplates(image,
                    listTemplates,
-                   listLabels=[],
+                   listLabels=None,
                    score_threshold=0.5,
                    maxOverlap=0.25,
                    nObjects=float("inf"),
@@ -151,7 +153,7 @@ def matchTemplates(image,
     return bestHits
 
 
-def plotDetections(image, listDetections, thickness=2):
+def plotDetections(image, listDetections, thickness=2, showLegend=False):
     """
     Plot the detections overlaid on the image.
 
@@ -171,9 +173,10 @@ def plotDetections(image, listDetections, thickness=2):
     - thickness (optional, default=2): int
         thickness of plotted contour in pixels
 
-    - showLabel: Boolean
-        Display label of the bounding box (field TemplateName)
-        Not implemented
+    - showLegend (optional, default=False): Boolean
+        Display a legend panel with the category labels for each color.
+        This works if the Detections have a label
+        (not just "", in which case the legend is not shown).
     """
     plt.figure()
     plt.imshow(image, cmap="gray")  # cmap gray only impacts gray images
@@ -184,9 +187,41 @@ def plotDetections(image, listDetections, thickness=2):
     palette = plt.cm.Set3.colors
     nColors = len(palette)
 
+    if showLegend:
+        mapLabelColor = {}
+
     for detection in listDetections:
+
+        # Get color for this category
         colorIndex = detection.get_template_index() % nColors  # will return an integer in the range of palette
+        color = palette[colorIndex]
 
         plt.plot(*detection.get_lists_xy(),
                  linewidth=thickness,
-                 color=palette[colorIndex])
+                 color=color)
+
+        # If show legend, get detection label and current color
+        if showLegend:
+
+            label = detection.get_label()
+
+            if label != "":
+                mapLabelColor[label] = color
+
+    # Finally add the legend if mapLabelColor is not empty
+    if showLegend :
+
+        if not mapLabelColor:  # Empty label mapping
+            warnings.warn("No label associated to the templates." +
+                          "Skipping legend.")
+
+        else:  # meaning mapLabelColor is not empty
+
+            legendLabels = []
+            legendEntries = []
+
+            for label, color in mapLabelColor.items():
+                legendLabels.append(label)
+                legendEntries.append(Line2D([0], [0], color=color, lw=4))
+
+            plt.legend(legendEntries, legendLabels)
