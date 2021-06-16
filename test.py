@@ -30,21 +30,4 @@ print(finalHits)
 print (np.array(finalHits)) # better formatting with array
 
 #%% Display matches
-overlay = MTM.drawBoxesOnRGB(image, finalHits, thickness=1)
-plt.figure()
-plt.imshow(overlay)
-
-#%% Use GluonCV for display
-"""
-import gluoncv as gcv
-
-
-# for loop needed
-# Convert from x,y,w,h to xmin, ymin, xmax, ymax
-BBoxes_xywh = np.array( finalHits["BBox"].tolist() )
-BBoxes_xyxy = gcv.utils.bbox.bbox_xywh_to_xyxy(BBoxes_xywh)
-
-Overlay2 = gcv.utils.viz.cv_plot_bbox(cv2.cvtColor(image, cv2.COLOR_GRAY2RGB), BBoxes_xyxy.astype("float64"), scores=finalHits["Score"].to_numpy(), thresh=0  )
-plt.figure()
-plt.imshow(Overlay2)
-"""
+MTM.plotDetections(image, finalHits, thickness=1)
