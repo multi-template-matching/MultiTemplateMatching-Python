@@ -1,12 +1,12 @@
 """
-Multi -Template-Matching.
+Multi-Template-Matching.
 
 Implements object-detection with one or mulitple template images
 Detected locations are represented as bounding boxes.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import draw, feature, morphology, color
+from skimage import feature
 from .NMS import NMS
 from .Detection import BoundingBox
 
@@ -47,10 +47,15 @@ def findMatches(image,
     - listTemplates : list of templates as grayscale or RGB numpy array
                       templates to search in each image
 
+    - listLabels (optional) : list of string labels associated to the templates (order must match).
+                              these labels can describe categories associated to the templates
+
     - nObjects: int
                 expected number of objects in the image
+
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
+
     - searchBox : tuple (X, Y, Width, Height) in pixel unit
                 optional rectangular search region as a tuple
 
@@ -136,93 +141,42 @@ def matchTemplates(image,
     return bestHits
 
 
-def drawBoxesOnRGB(image, listHit, thickness=2, colour=(255,0,0)):
+def plotDetections(image, listDetections, thickness=2):
     """
-    Return a copy of the image with predicted template locations as bounding boxes overlaid on the image.
-    TO DO:
-        -Use a different color for every template index, need to draw sequentially for each template
-        draw on a color mask first and then burn the mask ?
+    Plot the detections overlaid on the image.
+
+    This generates a Matplotlib figure and displays it.
+
+    Detections with identical template index (ie categories)
+    are shown with identical colors.
 
     Parameters
     ----------
-    - image  : image in which the search was performed
-    - tableHit: list of hit as returned by matchTemplates or findMatches
-    - boxThickness: int
-                    thickness of bounding box contour in pixels
-    - boxColor: (int, int, int)
-                RGB color for the bounding box
+    - image  :
+        image in which the search was performed
+
+    - listDetections:
+        list of detections as returned by matchTemplates or findMatches
+
+    - thickness (optional, default=2): int
+        thickness of plotted contour in pixels
+
     - showLabel: Boolean
-                Display label of the bounding box (field TemplateName)
-    - labelColor: (int, int, int)
-                RGB color for the label
-
-    Returns
-    -------
-    outImage: RGB image
-            original image with predicted template locations depicted as bounding boxes
+        Display label of the bounding box (field TemplateName)
+        Not implemented
     """
-    # Convert Grayscale to RGB to be able to see the color bboxes
-    if image.ndim == 2: outImage = color.gray2rgb(image) # convert to RGB to be able to show detections as color box on grayscale image
-    else:               outImage = image.copy()
+    plt.figure()
+    plt.imshow(image, cmap="gray")  # cmap gray only impacts gray images
+    # RGB are still displayed as color
 
+    # Load a color palette for categorical coloring of detections
+    # ie same category (identical tempalte index) = same color
     palette = plt.cm.Set3.colors
     nColors = len(palette)
 
-    mask = np.zeros(outImage.shape[:2], dtype="bool") # 1D boolean mask with True when bbox
-    for hit in listHit:
-        x,y,width,height = hit[1]
-        template = hit[2]
-        colorIndex = template % nColors # will return an integer in the range of palette
-        rr, cc = draw.rectangle_perimeter(start=(y,x), extent=(height, width))
-        mask[rr, cc] = True
+    for detection in listDetections:
+        colorIndex = detection.get_template_index() % nColors  # will return an integer in the range of palette
 
-    # Thicken rectangle contour
-    if thickness>1:
-        mask = morphology.dilation(mask, morphology.square(width=thickness))
-
-    # Overlay rectangle on the image
-    outImage[mask] = colour
-
-    return outImage
-
-
-def drawBoxesOnGray(image, listHit, thickness=2, gray=255):
-    """
-    Same as drawBoxesOnRGB but with Graylevel.
-
-    If a RGB image is provided, the output image will be a grayscale image
-
-    Parameters
-    ----------
-    - image  : image in which the search was performed
-    - listHit: list of hit as returned by matchTemplates or findMatches
-    - thickness: int
-                thickness of bounding box contour in pixels
-    - gray: int
-                Gray level for the bounding box
-
-    Returns
-    -------
-    outImage: Single channel grayscale image
-            original image with predicted template locations depicted as bounding boxes
-    """
-    # Convert RGB to grayscale
-    if image.ndim == 3: outImage = color.rgb2gray(image) # convert to RGB to be able to show detections as color box on grayscale image
-    else:               outImage = image.copy()
-
-    mask = np.zeros_like(outImage, dtype="bool")
-    for hit in listHit:
-        x,y,width,height = hit[1]
-        rr, cc = draw.rectangle_perimeter(start=(y,x), extent=(height, width))
-        mask[rr, cc] = True # boolean mask
-
-    # Thicken rectangle contour
-    if thickness>1:
-        mask = morphology.dilation(mask, morphology.square(width=thickness))
-
-    # Overlay rectangle on the image
-    outImage[mask] = gray
-
-    #if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA)
-
-    return outImage
+        plt.plot(*detection.get_lists_xy(),
+                 linewidth=thickness,
+                 color=palette[colorIndex])
