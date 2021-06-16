@@ -39,7 +39,11 @@ class BoundingBox(polygon.Polygon):
     def get_score(self):
         return self.score
 
-    def get_index(self):
+    def get_template_index(self):
+        """
+        Return the positional index of the template
+        associated to this detection in the original list of templates.
+        """
         return self.template_index
 
     def __str__(self):
