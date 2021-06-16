@@ -13,14 +13,21 @@ from .Detection import BoundingBox
 __all__ = ['NMS']
 __version__ = '1.5.4'
 
-def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
-    """Get coordinates of the global (nnObjects=1) or local maximas with values above a threshold in the image of the correlation map."""
-    # IF depending on the shape of the correlation map
-    if corrMap.shape == (1,1): ## Template size = Image size -> Correlation map is a single digit representing the score
-        listPeaks = np.array([[0,0]]) if corrMap[0,0]>=score_threshold else []
 
-    else: # Correlation map is a 1D or 2D array
-        nPeaks = 1 if nObjects==1 else float("inf") # global maxima detection if nObject=1 (find best hit of the score map)
+def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
+    """
+    Maxima detection in correlation map.
+
+    Get coordinates of the global (nObjects=1)
+    or local maximas with values above a threshold
+    in the image of the correlation map.
+    """
+    # IF depending on the shape of the correlation map
+    if corrMap.shape == (1, 1):  # Template size = Image size -> Correlation map is a single digit representing the score
+        listPeaks = np.array([[0, 0]]) if corrMap[0, 0] >= score_threshold else []
+
+    else:  # Correlation map is a 1D or 2D array
+        nPeaks = 1 if nObjects == 1 else float("inf")  # global maxima detection if nObject=1 (find best hit of the score map)
         # otherwise local maxima detection (ie find all peaks), DONT LIMIT to nObjects, more than nObjects detections might be needed for NMS
         listPeaks = feature.peak_local_max(corrMap,
                                            threshold_abs=score_threshold,
@@ -32,7 +39,7 @@ def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
 
 def findMatches(image,
                 listTemplates,
-                listLabels=[],
+                listLabels=None,
                 score_threshold=0.5,
                 nObjects=float("inf"),
                 searchBox=None):
@@ -63,40 +70,43 @@ def findMatches(image,
     -------
     - list of hits encoded as [template index, score, (x,y,width, height)]
     """
-    if nObjects!=float("inf") and type(nObjects)!=int:
+    if nObjects != float("inf") and type(nObjects) != int:
         raise TypeError("nObjects must be an integer")
 
-    elif nObjects<1:
+    if nObjects < 1:
         raise ValueError("At least one object should be expected in the image")
 
-    ## Crop image to search region if provided
-    if searchBox != None:
+    if (listLabels is not None and
+       (len(listTemplates) != len(listLabels))):
+        raise ValueError("There must be one label per template.")
+
+    # Crop image to search region if provided
+    if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
-        image = image[yOffset:yOffset+searchHeight, xOffset:xOffset+searchWidth]
+        image = image[yOffset:yOffset+searchHeight,
+                      xOffset:xOffset+searchWidth]
     else:
-        xOffset=yOffset=0
+        xOffset = yOffset = 0
 
     listHit = []
     for index, template in enumerate(listTemplates):
 
-        #print('\nSearch with template : ',templateName)
-
-        corrMap   = feature.match_template(image, template)
+        corrMap = feature.match_template(image, template)
         listPeaks = findMaximas(corrMap, score_threshold, nObjects)
 
-        height, width = template.shape[0:2] # slicing make sure it works for RGB too
+        height, width = template.shape[0:2]  # slicing make sure it works for RGB too
         label = listLabels[index] if listLabels else ""
 
-        for peak in listPeaks :
+        for peak in listPeaks:
             score = corrMap[tuple(peak)]
-            bbox  = (int(peak[1]) + xOffset,
-                     int(peak[0]) + yOffset,
-                     width, height)
+            bbox = (int(peak[1]) + xOffset,
+                    int(peak[0]) + yOffset,
+                    width, height)
 
             hit = BoundingBox(bbox, score, index, label)
-            listHit.append(hit) # append to list of potential hit before Non maxima suppression
+            listHit.append(hit)  # append to list of potential hit before Non maxima suppression
 
-    return listHit # All possible hits before Non-Maxima Supression
+    return listHit  # All possible hits before Non-Maxima Supression
 
 
 def matchTemplates(image,
