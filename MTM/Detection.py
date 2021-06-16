@@ -28,6 +28,7 @@ class BoundingBox(polygon.Polygon):
     def __init__(self, bbox, score, template_index=0, label=""):
         x, y, width, height = bbox
         super().__init__( [(x,y), (x+width-1,y), (x+width-1, y+height-1), (x, y+height-1)] )
+        self.xywh = bbox
         self.score = score
         self.template_index = template_index
         self.label = label
@@ -50,6 +51,10 @@ class BoundingBox(polygon.Polygon):
         return ("({:.2f}, xyxy:{}, {})").format(self.get_score(),
                                                 tuple(map(int, self.bounds)),
                                                 self.get_label())
+
+    def get_xywh(self):
+        """Return the bounding-box dimensions as xywh. """
+        return self.xywh
 
     def __repr__(self):
         return self.__str__()
