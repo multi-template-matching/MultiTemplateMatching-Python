@@ -23,11 +23,14 @@ listTemplates = [smallCoin, bigCoin]
 listHit      = MTM.findMatches(image, listTemplates, listLabels)
 singleObject = MTM.findMatches(image, listTemplates, listLabels, nObjects=1)  # there should be 1 top hit per template
 
-finalHits = MTM.matchTemplates(image, listTemplates, listLabels, score_threshold=0.6, maxOverlap=0)
+finalHits = MTM.matchTemplates(image,
+                               listTemplates,
+                               listLabels,
+                               score_threshold=0.6,
+                               maxOverlap=0)
 
 print("Found {} coins".format(len(finalHits)))
-print(finalHits)
 print (np.array(finalHits)) # better formatting with array
 
 #%% Display matches
-MTM.plotDetections(image, finalHits, thickness=1)
+MTM.plotDetections(image, finalHits)
