@@ -48,9 +48,15 @@ class BoundingBox(polygon.Polygon):
         return self.template_index
 
     def __str__(self):
-        return ("({:.2f}, xyxy:{}, {})").format(self.get_score(),
-                                                tuple(map(int, self.bounds)),
-                                                self.get_label())
+        name = "({:.2f}, xyxy:{}".format(self.get_score(),
+                                          tuple(map(int, self.bounds))
+                                          )
+        label = self.get_label()
+        if label != "" : name += "," + label
+
+        name += ")"
+
+        return name
 
     def get_xywh(self):
         """Return the bounding-box dimensions as xywh. """
@@ -95,5 +101,8 @@ class BoundingBox(polygon.Polygon):
 
 if __name__ == "__main__":
     detection = BoundingBox((0, 0, 10, 10), 0.5, label="Test")
+    nolabel = BoundingBox((0, 0, 10, 10), 0.5)
+
     print(detection)
-    print([detection, detection])
+    print(nolabel)
+    print([detection, nolabel])
