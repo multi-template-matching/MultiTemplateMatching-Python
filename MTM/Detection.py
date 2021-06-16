@@ -66,8 +66,17 @@ class BoundingBox(polygon.Polygon):
         """
         return self.intersection_area(detection2)/self.union_area(detection2)
 
+    def get_lists_xy(self):
+        """
+        Return a tuple of 2 arrays for x and y coordinates.
+
+        The lists correspond to the coordinates
+        for the corners of the detection shape.
+        """
+        return self.exterior.xy
+
     """
-    # If you were implementing a different type of Detection object
+    # If you were using a different implementation for Detection objects
     # These 2 functions should also be implemented
     # Here they are inherited from shapely's Polygon
     def overlaps(self, detection2):
