@@ -26,7 +26,7 @@ singleObject = MTM.findMatches(image, listTemplates, listLabels, nObjects=1)  # 
 finalHits = MTM.matchTemplates(image,
                                listTemplates,
                                listLabels,
-                               score_threshold=0.6,
+                               score_threshold=0.4,
                                maxOverlap=0)
 
 print("Found {} coins".format(len(finalHits)))
