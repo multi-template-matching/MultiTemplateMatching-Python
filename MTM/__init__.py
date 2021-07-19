@@ -119,7 +119,7 @@ def matchTemplates(image,
                    nObjects=float("inf"),
                    searchBox=None):
     """
-    Search each template in the image, and return the best nObjects location which offer the best score and which do not overlap.
+    Search each template in the image, and return the best nObjects locations which offer the best score and which do not overlap.
 
     Parameters
     ----------
@@ -139,10 +139,10 @@ def matchTemplates(image,
 
     Returns
     -------
-    Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float
-        if N=1, return the best matches independently of the score_threshold
-        if N<inf, returns up to N best matches that passed the score_threshold
-        if N=inf, returns all matches that passed the score_threshold
+    List with 1 element per hit and each element containing "Score"(float), "BBox":(X, Y, X, Y), "TemplateName"(string)
+        if nObjects=1, return the best matches independently of the score_threshold
+        if nObjects<inf, returns up to N best matches that passed the score_threshold
+        if nObjects='inf'(string), returns all matches that passed the score_threshold
     """
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
