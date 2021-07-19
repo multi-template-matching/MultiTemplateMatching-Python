@@ -1,4 +1,3 @@
-Multi-Template-Matching==1.5.1
 numpy==1.16.4
 opencv-python-headless==4.1.0.25
 scikit-image==0.15.0
