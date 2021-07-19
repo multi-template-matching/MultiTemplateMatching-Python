@@ -228,32 +228,32 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False):
 
 
 def bbupscale(listDetectionsdownscale, downscaleRatio):
-	"""
-	Upscales a list of bounding boxes for display on a larger definition image
+    """
+    Upscales a list of bounding boxes for display on a larger definition image
 
-	Parameters
-	----------
-	listDetections : list of lists or tuples
-		list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height).
+    Parameters
+    ----------
+    listDetections : list of lists or tuples
+        list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height).
 
-	downscaleRatio : float
-		float representing the ratio between the downscaled image and the full scale image
-		between 0 and 1 if the image was downscaled
+    downscaleRatio : float
+        float representing the ratio between the downscaled image and the full scale image
+        between 0 and 1 if the image was downscaled
 
-	Returns
-	----------
-	listDetectionsupscaled : list of lists or tuples
-		list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height) in coordinates of full scale image.
-	"""
-	listDetectionsupscale = []
+    Returns
+    ----------
+    listDetectionsupscaled : list of lists or tuples
+        list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height) in coordinates of full scale image.
+    """
+    listDetectionsupscale = []
 
-	for detection in listDetectionsdownscale:
+    for detection in listDetectionsdownscale:
 
-		(x, y, w, h), score, index, label = detection.get_xywh(), detection.get_score(), detection.get_template_index(), detection.get_label()
+        (x, y, w, h), score, index, label = detection.get_xywh(), detection.get_score(), detection.get_template_index(), detection.get_label()
 
-		bboxupscale = (x/downscaleRatio, y/downscaleRatio, w/downscaleRatio, h/downscaleRatio)
-		detectionupscale = BoundingBox(bboxupscale, score, index, label)
+        bboxupscale = (x/downscaleRatio, y/downscaleRatio, w/downscaleRatio, h/downscaleRatio)
+        detectionupscale = BoundingBox(bboxupscale, score, index, label)
 
-		listDetectionsupscale.append(detectionupscale)
+        listDetectionsupscale.append(detectionupscale)
 
-	return listDetectionsupscale			
+    return listDetectionsupscale			
