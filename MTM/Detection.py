@@ -48,12 +48,16 @@ class BoundingBox(polygon.Polygon):
         return self.template_index
 
     def __str__(self):
-        name = "({:.2f}, xyxy:{}".format(self.get_score(),
-                                          tuple(map(int, self.bounds))
-                                          )
         label = self.get_label()
-        if label != "" : name += "," + label
+        if label != "" :
+            tag = label
+        else:
+            tag = self.get_template_index()
 
+        name = "({:.2f}, xyxy:{}, {}".format(self.get_score(),
+                                          tuple(map(int, self.bounds)),
+                                          tag
+                                          )
         name += ")"
 
         return name
