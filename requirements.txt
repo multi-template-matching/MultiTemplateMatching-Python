@@ -1,4 +1,0 @@
-Multi-Template-Matching==1.5.1
-numpy==1.16.4
-scikit-image==0.15.0
-shapely==1.7.1
