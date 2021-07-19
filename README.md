@@ -1,4 +1,4 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/multi-template-matching/MultiTemplateMatching-Python/skimage+shapely?filepath=tutorials)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Pierretreh/MultiTemplateMatching-Python/skimage+shapely?filepath=tutorials)
 
 # Multi-Template-Matching
 Multi-Template-Matching is a package to perform object-recognition in images using one or several smaller template images.  
