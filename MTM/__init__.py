@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 from matplotlib.lines import Line2D
-from skimage import feature
+from skimage import feature, transform
 from .NMS import NMS
 from .Detection import BoundingBox
 
@@ -44,7 +44,8 @@ def findMatches(image,
                 listLabels=None,
                 score_threshold=0.5,
                 nObjects=float("inf"),
-                searchBox=None):
+                searchBox=None,
+                downscaling_ratio=1):
     """
     Find all possible templates locations provided a list of template to search and an image.
 
@@ -68,6 +69,9 @@ def findMatches(image,
     - searchBox : tuple (X, Y, Width, Height) in pixel unit
                 optional rectangular search region as a tuple
 
+    - downscaling_ratio: int >= 1
+                ratio to downscale the image by before performing template matching to achieve higher compute speed
+
     Returns
     -------
     - List with 1 element per hit and each element containing "Score"(float), "BBox":(X, Y, X, Y), "TemplateIndex" (int), "TemplateLabel"(string)
@@ -90,6 +94,11 @@ def findMatches(image,
     else:
         xOffset = yOffset = 0
 
+    if downscaling_ratio is not None:
+        image = transform.rescale(image, 1/downscaling_ratio, anti_aliasing = False)
+        for i in range(len(listTemplates)):
+            listTemplates[i] = transform.rescale(listTemplates[i], 1/downscaling_ratio, anti_aliasing = False)
+
     listHit = []
     for index, template in enumerate(listTemplates):
 
@@ -101,9 +110,9 @@ def findMatches(image,
 
         for peak in listPeaks:
             score = corrMap[tuple(peak)]
-            bbox = (int(peak[1]) + xOffset,
-                    int(peak[0]) + yOffset,
-                    width, height)
+            bbox = (int(peak[1]) * downscaling_ratio + xOffset,
+                    int(peak[0]) * downscaling_ratio + yOffset,
+                    width * downscaling_ratio, height * downscaling_ratio)
 
             hit = BoundingBox(bbox, score, index, label)
             listHit.append(hit)  # append to list of potential hit before Non maxima suppression
@@ -117,7 +126,8 @@ def matchTemplates(image,
                    score_threshold=0.5,
                    maxOverlap=0.25,
                    nObjects=float("inf"),
-                   searchBox=None):
+                   searchBox=None,
+                   downscaling_ratio=1):
     """
     Search each template in the image, and return the best nObjects locations which offer the best score and which do not overlap.
 
@@ -136,6 +146,8 @@ def matchTemplates(image,
                 If the ratio is over the maxOverlap, the lower score bounding box is discarded.
     - searchBox : tuple (X, Y, Width, Height) in pixel unit
                 optional rectangular search region as a tuple
+    - downscaling_ratio: int >= 1
+                ratio to downscale the image by before performing template matching to achieve higher compute speed
 
     Returns
     -------
@@ -147,7 +159,7 @@ def matchTemplates(image,
     if maxOverlap<0 or maxOverlap>1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
 
-    listHit  = findMatches(image, listTemplates, listLabels, score_threshold, nObjects, searchBox)
+    listHit  = findMatches(image, listTemplates, listLabels, score_threshold, nObjects, searchBox, downscaling_ratio)
     bestHits = NMS(listHit, maxOverlap, nObjects)
 
     return bestHits
@@ -256,4 +268,4 @@ def bbupscale(listDetectionsdownscale, downscaleRatio):
 
         listDetectionsupscale.append(detectionupscale)
 
-    return listDetectionsupscale			
+    return listDetectionsupscale            
