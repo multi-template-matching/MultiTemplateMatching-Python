@@ -70,7 +70,7 @@ def findMatches(image,
 
     Returns
     -------
-    - list of hits encoded as [template index, score, (x,y,width, height)]
+    - List with 1 element per hit and each element containing "Score"(float), "BBox":(X, Y, X, Y), "TemplateIndex" (int), "TemplateLabel"(string)
     """
     if nObjects != float("inf") and type(nObjects) != int:
         raise TypeError("nObjects must be an integer")
@@ -139,7 +139,7 @@ def matchTemplates(image,
 
     Returns
     -------
-    List with 1 element per hit and each element containing "Score"(float), "BBox":(X, Y, X, Y), "TemplateName"(string)
+    List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y), "template_index"(int), "Label"(string)
         if nObjects=1, return the best matches independently of the score_threshold
         if nObjects<inf, returns up to N best matches that passed the score_threshold
         if nObjects='inf'(string), returns all matches that passed the score_threshold
@@ -233,8 +233,8 @@ def bbupscale(listDetectionsdownscale, downscaleRatio):
 
     Parameters
     ----------
-    listDetections : list of lists or tuples
-        list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height).
+    listDetections : list of BoundingBox items
+        List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y), "Template_index"(int), "Label"(string)
 
     downscaleRatio : float
         float representing the ratio between the downscaled image and the full scale image
@@ -242,8 +242,8 @@ def bbupscale(listDetectionsdownscale, downscaleRatio):
 
     Returns
     ----------
-    listDetectionsupscaled : list of lists or tuples
-        list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height) in coordinates of full scale image.
+    listDetectionsupscaled : list of BoundingBox items
+        List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y) (in coordinates of the full scale image), "Template_index"(int), "Label"(string)
     """
     listDetectionsupscale = []
 

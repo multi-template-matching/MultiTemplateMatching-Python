@@ -14,9 +14,20 @@ from __future__ import division, print_function # for compatibility with Py2
 
 
 def computeIoU(detection1, detection2):
-    '''
+    """
     Compute the IoU (Intersection over Union) between 2 Detections object
-    '''
+    
+    Parameters:
+    ----------
+    detection1, detection2 : Boundingbox object
+        Two items to compute the IoU on
+
+    Returns
+    -------
+    float:
+        Float between 0 and 1
+        Intersection over Union value of detection1 and detection2
+    """
     if not (detection1.overlaps(detection2) or
             detection1.contains(detection2) or
             detection2.contains(detection1)):
@@ -45,8 +56,8 @@ def NMS(listDetections, maxOverlap=0.5, nObjects=float("inf"), sortDescending=Tr
 
     Parameters
     ----------
-    listDetections : list of lists or tuples
-        list containing hits each encoded as a list [score, bbox, index], bboxes are encoded as (x,y,width, height).
+    listDetections : list of BoundingBox items
+        List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y), "Template_index"(int), "Label"(string)
     sortDescending : boolean, optional
         Should be True when high score means better prediction (Correlation score), False otherwise (Difference-based score). The default is True.
     nObjects : integer or float("inf"), optional

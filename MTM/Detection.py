@@ -12,7 +12,7 @@ class BoundingBox(polygon.Polygon):
 
     Parameters
     ----------
-    bbox tuple of 4 ints:
+    bbox, tuple of 4 ints:
         x,y, width, height dimensions of the rectangle outlining the detection with x,y the top left corner
 
     score, float:
