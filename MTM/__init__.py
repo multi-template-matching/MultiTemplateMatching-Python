@@ -77,6 +77,9 @@ def findMatches(image,
        (len(listTemplates) != len(listLabels))):
         raise ValueError("There must be one label per template.")
 
+    if downscaling_factor < 1:
+        raise ValueError("Downscaling factor must be an integer over 1")
+
     # Crop image to search region if provided
     if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
@@ -88,9 +91,7 @@ def findMatches(image,
     # TODO dont change listTemplate in-place + use a list comprehension
     if downscaling_factor != 1:
         image = transform.rescale(image, 1/downscaling_factor, anti_aliasing = False)
-        
-        for i in range(len(listTemplates)):
-            listTemplates[i] = transform.rescale(listTemplates[i], 1/downscaling_factor, anti_aliasing = False)
+        listTemplates = [transform.rescale(template, 1/downscaling_factor, anti_aliasing = False) for template in listTemplates]
 
     listHit = []
     for index, template in enumerate(listTemplates):
@@ -168,7 +169,7 @@ def matchTemplates(image,
     return bestHits
 
 
-def plotDetections(image, listDetections, thickness=2, showLegend=False):
+def plotDetections(image, listDetections, thickness=2, showLegend=False, showScore=False):
     """
     Plot the detections overlaid on the image.
     This generates a Matplotlib figure and displays it.
@@ -186,6 +187,8 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False):
         Display a legend panel with the category labels for each color.
         This works if the Detections have a label
         (not just "", in which case the legend is not shown).
+    - showScore (optional, default=False): Boolean
+        Display the score of the corresponding hit next to a plotted contour.
     """
     plt.figure()
     plt.imshow(image, cmap="gray")  # cmap gray only impacts gray images
@@ -208,6 +211,13 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False):
         plt.plot(*detection.get_lists_xy(),
                  linewidth=thickness,
                  color=color)
+
+        if showScore:
+            (x, y, width, height) = detection.get_xywh()
+            plt.annotate(round(detection.get_score(), 2),
+                         (x + width/3, y + height/3),
+                         ha="center",
+						 fontsize=height/4)
 
         # If show legend, get detection label and current color
         if showLegend:
@@ -235,7 +245,6 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False):
 
             plt.legend(legendEntries, legendLabels)
 
-# TODO use dowscaling factor here too 
 def rescale_bounding_boxes(listDetectionsdownscale, downscaling_factor):
     """
     Rescale detected bounding boxes to the original image resolution, when downscaling was used for the detection.
