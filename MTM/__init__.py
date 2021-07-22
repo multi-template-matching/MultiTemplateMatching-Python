@@ -86,6 +86,9 @@ def findMatches(image,
        (len(listTemplates) != len(listLabels))):
         raise ValueError("There must be one label per template.")
 
+	if downscaling_factor < 1:
+		raise ValueError("Downscaling factor must be an integer over 1")
+
     # Crop image to search region if provided
     if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
