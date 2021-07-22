@@ -96,8 +96,7 @@ def findMatches(image,
 
     if downscaling_ratio is not None:
         image = transform.rescale(image, 1/downscaling_ratio, anti_aliasing = False)
-        for i in range(len(listTemplates)):
-            listTemplates[i] = transform.rescale(listTemplates[i], 1/downscaling_ratio, anti_aliasing = False)
+        listTemplates = [transform.rescale(template, 1/downscaling_factor, anti_aliasing = False) for template in listTemplates]
 
     listHit = []
     for index, template in enumerate(listTemplates):
