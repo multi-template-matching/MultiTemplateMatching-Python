@@ -1,5 +1,6 @@
 """
 Multi-Template-Matching.
+
 Implements object-detection with one or mulitple template images
 Detected locations are represented as bounding boxes.
 """
@@ -18,6 +19,7 @@ __version__ = '1.5.4'
 def findMaximas(corrMap, score_threshold=0.6, nObjects=float("inf")):
     """
     Maxima detection in correlation map.
+    
     Get coordinates of the global (nObjects=1)
     or local maximas with values above a threshold
     in the image of the correlation map.
@@ -46,23 +48,30 @@ def findMatches(image,
                 downscaling_factor=1):
     """
     Find all possible templates locations provided a list of template to search and an image.
+    
     Parameters
     ----------
     - image  : Grayscale or RGB numpy array
               image in which to perform the search, it should be the same bitDepth and number of channels than the templates
+    
     - listTemplates : list of templates as grayscale or RGB numpy array
                       templates to search in each image
+    
     - listLabels (optional) : list of string labels associated to the templates (order must match).
                               these labels can describe categories associated to the templates
     - nObjects: int
                 expected number of objects in the image
+   
     - score_threshold: float in range [0,1]
                 if N>1, returns local minima/maxima respectively below/above the score_threshold
+   
     - searchBox (optional): tuple (x y, width, height) in pixels
                 limit the search to a rectangular sub-region of the image
+    
     - downscaling_factor: int >= 1, default 1 (ie no downscaling)
                speed up the search by downscaling the template and image size before running the template matching
                detected regions are then rescaled to original image sizes.
+               
     Returns
     -------
     - List of Detections
@@ -88,8 +97,7 @@ def findMatches(image,
     else:
         xOffset = yOffset = 0
     
-    # TODO dont change listTemplate in-place + use a list comprehension
-    if downscaling_factor != 1:
+    if downscaling_factor != 1: # make a downscaled copy of image and templates
         image = transform.rescale(image, 1/downscaling_factor, anti_aliasing = False)
         listTemplates = [transform.rescale(template, 1/downscaling_factor, anti_aliasing = False) for template in listTemplates]
 
@@ -124,6 +132,7 @@ def matchTemplates(image,
                    downscaling_factor=1):
     """
     Search each template in the image, and return the best nObjects locations which offer the best score and which do not overlap.
+   
     Parameters
     ----------
     - image  : Grayscale or RGB numpy array
@@ -172,9 +181,11 @@ def matchTemplates(image,
 def plotDetections(image, listDetections, thickness=2, showLegend=False, showScore=False):
     """
     Plot the detections overlaid on the image.
+   
     This generates a Matplotlib figure and displays it.
     Detections with identical template index (ie categories)
     are shown with identical colors.
+    
     Parameters
     ----------
     - image  :
@@ -248,6 +259,7 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False, showSco
 def rescale_bounding_boxes(listDetectionsdownscale, downscaling_factor):
     """
     Rescale detected bounding boxes to the original image resolution, when downscaling was used for the detection.
+    
     Parameters
     ----------
     - listDetections : list of BoundingBox items
