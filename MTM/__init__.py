@@ -97,13 +97,15 @@ def findMatches(image,
     else:
         xOffset = yOffset = 0
     
-    if downscaling_factor != 1: # make a downscaled copy of image and templates
+    if downscaling_factor != 1: # make a downscaled copy of the image
         image = transform.rescale(image, 1/downscaling_factor, anti_aliasing = False)
-        listTemplates = [transform.rescale(template, 1/downscaling_factor, anti_aliasing = False) for template in listTemplates]
 
     listHit = []
     for index, template in enumerate(listTemplates):
-
+        
+        if downscaling_factor != 1:  # make a downscaled copy of the current template
+            template = transform.rescale(template, 1/downscaling_factor, anti_aliasing = False)
+            
         corrMap = feature.match_template(image, template)
         listPeaks = findMaximas(corrMap, score_threshold, nObjects)
 
