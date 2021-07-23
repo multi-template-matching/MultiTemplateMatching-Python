@@ -57,7 +57,7 @@ def findMatches(image,
     - listTemplates : list of templates as grayscale or RGB numpy array
                       templates to search in each image
     
-    - listLabels (optional) : list of string labels associated to the templates (order must match).
+    - listLabels (optional) : list of string labels associated to the templates (order must match the templates in listTemplates).
                               these labels can describe categories associated to the templates
     - nObjects: int
                 expected number of objects in the image
@@ -69,12 +69,12 @@ def findMatches(image,
                 limit the search to a rectangular sub-region of the image
     
     - downscaling_factor: int >= 1, default 1 (ie no downscaling)
-               speed up the search by downscaling the template and image size before running the template matching
-               detected regions are then rescaled to original image sizes.
+               speed up the search by downscaling the template and image before running the template matching.
+               Detected regions are then rescaled to original image sizes.
                
     Returns
     -------
-    - List of Detections
+    - List of BoundingBoxes
     """
     if nObjects != float("inf") and type(nObjects) != int:
         raise TypeError("nObjects must be an integer")
@@ -143,8 +143,8 @@ def matchTemplates(image,
     - listTemplates : list of templates as 2D grayscale or RGB numpy array
                       templates to search in each image
     
-    - listLabels (optional) : list of string
-                              labels, associated the templates. The order of the label must match the template order.
+    - listLabels (optional) : list of strings
+                              labels, associated the templates. The order of the label must match the order of the templates in listTemplates.
     
     - nObjects: int
                 expected number of objects in the image
@@ -159,16 +159,16 @@ def matchTemplates(image,
     - searchBox : tuple (x y, width, height) in pixels
                 limit the search to a rectangular sub-region of the image
                 
-    - downscaling_factor: int >= 1
-               speed up the search by downscaling the template and image size before running the template matching
-               detected regions are then rescaled to original image sizes.
+    - downscaling_factor: int >= 1, default 1 ie no downscaling
+               speed up the search by downscaling the template and image before running the template matching.
+               Detected regions are then rescaled to original image sizes.
                
     Returns
     -------
-    List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y), "template_index"(int), "Label"(string)
-        if nObjects=1, return the best matches independently of the score_threshold
-        if nObjects<inf, returns up to N best matches that passed the score_threshold
-        if nObjects='inf'(string), returns all matches that passed the score_threshold
+    List of BoundingBoxes
+        if nObjects=1, return the best BoundingBox independently of the score_threshold and maxOverlap
+        if nObjects<inf, returns up to N best BoundingBoxes that passed the score_threshold and Non-Maxima Suppression
+        if nObjects='inf'(string), returns all BoundingBoxes that passed the score_threshold and Non-Maxima Suppression
         
     """
     if maxOverlap<0 or maxOverlap>1:
@@ -188,18 +188,24 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False, showSco
     Detections with identical template index (ie categories)
     are shown with identical colors.
     
+    The figure can be further costumised after calling this function with following matplotlib.pyplot calls.
+    
     Parameters
     ----------
     - image  :
         image in which the search was performed
+    
     - listDetections:
         list of detections as returned by matchTemplates or findMatches
+    
     - thickness (optional, default=2): int
         thickness of plotted contour in pixels
+    
     - showLegend (optional, default=False): Boolean
         Display a legend panel with the category labels for each color.
         This works if the Detections have a label
         (not just "", in which case the legend is not shown).
+    
     - showScore (optional, default=False): Boolean
         Display the score of the corresponding hit next to a plotted contour.
     """
