@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Non-Maxima Supression (NMS) for match template
+Non-Maxima Supression (NMS) for match template.
+
 From a pool of bounding box each predicting possible object locations with a given score,
 the NMS removes the bounding boxes overlapping with a bounding box of higher score above the maxOverlap threshold
 
@@ -15,9 +16,9 @@ from __future__ import division, print_function # for compatibility with Py2
 
 def computeIoU(detection1, detection2):
     """
-    Compute the IoU (Intersection over Union) between 2 Detections object
+    Compute the IoU (Intersection over Union) between 2 Detections object.
     
-    Parameters:
+    Parameters
     ----------
     detection1, detection2 : Boundingbox object
         Two items to compute the IoU on
