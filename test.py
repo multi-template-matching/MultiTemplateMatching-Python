@@ -1,8 +1,7 @@
-'''
-Make sure the active directory is the directory of the repo when running the test in a IDE
-'''
+"""
+Make sure the active directory is the directory of the repo when running the test in a IDE.
+"""
 from skimage.data import coins
-import matplotlib.pyplot as plt
 import MTM
 print( MTM.__version__ )
 import numpy as np
@@ -33,4 +32,4 @@ print("Found {} coins".format(len(finalHits)))
 print (np.array(finalHits)) # better formatting with array
 
 #%% Display matches
-MTM.plotDetections(image, finalHits, showLegend=True)
+MTM.plotDetections(image, finalHits, showLegend=True, showScore=True)
