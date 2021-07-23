@@ -264,7 +264,8 @@ def plotDetections(image, listDetections, thickness=2, showLegend=False, showSco
 
             plt.legend(legendEntries, legendLabels)
 
-def rescale_bounding_boxes(listDetectionsdownscale, downscaling_factor):
+
+def rescale_bounding_boxes(listDetectionsDownscaled, downscaling_factor):
     """
     Rescale detected bounding boxes to the original image resolution, when downscaling was used for the detection.
     
@@ -272,6 +273,7 @@ def rescale_bounding_boxes(listDetectionsdownscale, downscaling_factor):
     ----------
     - listDetections : list of BoundingBox items
         List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y), "Template_index"(int), "Label"(string)
+    
     - downscaling_factor: int >= 1
                allows to rescale by multiplying coordinates by the factor they were downscaled by
     Returns
@@ -279,15 +281,18 @@ def rescale_bounding_boxes(listDetectionsdownscale, downscaling_factor):
     listDetectionsupscaled : list of BoundingBox items
         List with 1 element per hit and each element containing "Score"(float), "BBox"(X, Y, X, Y) (in coordinates of the full scale image), "Template_index"(int), "Label"(string)
     """
-    listDetectionsupscale = []
+    listDetectionsUpscaled = []
 
-    for detection in listDetectionsdownscale:
+    for detection in listDetectionsDownscaled:
+        
+        # Compute rescaled coordinates 
+        xywh_upscaled = [coordinate * downscaling_factor for coordinate in detection.get_xywh() ]
 
-        (x, y, w, h), score, index, label = detection.get_xywh(), detection.get_score(), detection.get_template_index(), detection.get_label()
+        detectionUpscaled = BoundingBox(xywh_upscaled, 
+                                        detection.get_score(), 
+                                        detection.get_template_index(), 
+                                        detection.get_label())
 
-        bboxupscale = (x*downscaling_factor, y*downscaling_factor, w*downscaling_factor, h*downscaling_factor)
-        detectionupscale = BoundingBox(bboxupscale, score, index, label)
+        listDetectionsUpscaled.append(detectionUpscaled)
 
-        listDetectionsupscale.append(detectionupscale)
-
-    return listDetectionsupscale            
+    return listDetectionsUpscaled            
