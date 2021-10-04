@@ -114,11 +114,11 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     -------
     - Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float
     """
-    if N_object!=float("inf") and type(N_object)!=int:
+    if N_object != float("inf") and type(N_object) != int:
         raise TypeError("N_object must be an integer")
 
     ## Crop image to search region if provided
-    if searchBox != None:
+    if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
         image = image[yOffset:yOffset+searchHeight, xOffset:xOffset+searchWidth]
     else:
