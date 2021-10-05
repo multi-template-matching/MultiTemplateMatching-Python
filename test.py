@@ -33,10 +33,14 @@ plt.figure()
 plt.imshow(Overlay)
 
 #%% Check that it is raising an error if template is larger than image or search region
-tableHit = MTM.matchTemplates(listTemplates, image, searchBox=(0,0,20,20)) # larger than search region
+# Comment all except one to test them
+MTM.matchTemplates(listTemplates, image, searchBox=(0,0,20,20)) # larger than search region
+MTM.matchTemplates(listTemplates, 
+                   image, 
+                   searchBox=(0,0) + bigCoin.shape[::-1]) # as large as search region
 
 tooLarge = ("tooLarge", np.pad(image, 1))
-tableHit = MTM.matchTemplates([tooLarge], image) # larger than image
+MTM.matchTemplates([tooLarge], image) # larger than image
 
 #%% Use GluonCV for display
 import gluoncv as gcv
