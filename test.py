@@ -32,6 +32,12 @@ Overlay = MTM.drawBoxesOnRGB(image, tableHit, showLabel=True)
 plt.figure()
 plt.imshow(Overlay)
 
+#%% Check that it is raising an error if template is larger than image or search region
+tableHit = MTM.matchTemplates(listTemplates, image, searchBox=(0,0,20,20)) # larger than search region
+
+tooLarge = ("tooLarge", np.pad(image, 1))
+tableHit = MTM.matchTemplates([tooLarge], image) # larger than image
+
 #%% Use GluonCV for display
 import gluoncv as gcv
 
