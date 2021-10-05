@@ -48,6 +48,7 @@ def _findLocalMin_(corrMap, score_threshold=0.4):
 def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
     """
     Compute score map provided numpy array for template and image (automatically converts images if necessary).
+    The template must be smaller or as large as the image.
     A mask can be provided to limit the comparison of the pixel values to a fraction of the template region.
     The mask should have the same dimensions and image type than the template.
 
@@ -85,7 +86,8 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
 
 def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
     """
-    Find all possible templates locations provided a list of templates to search and an image.
+    Find all possible templates locations satisfying the score threshold provided a list of templates to search and an image.
+    Returns a pandas dataframe with one row per detection.
 
     Parameters
     ----------
@@ -107,7 +109,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     - score_threshold: float in range [0,1]
                 if N_object>1, returns local minima/maxima respectively below/above the score_threshold
 
-    - searchBox : tuple (X, Y, Width, Height) in pixel unit
+    - searchBox : tuple (x, y, width, height) in pixel unit
                 optional rectangular search region as a tuple
 
     Returns
@@ -120,7 +122,8 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     ## Crop image to search region if provided
     if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
-        image = image[yOffset:yOffset+searchHeight, xOffset:xOffset+searchWidth]
+        image = image[yOffset : yOffset+searchHeight, xOffset : xOffset+searchWidth]
+        
     else:
         xOffset=yOffset=0
 
@@ -133,7 +136,7 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         templateName, template = tempTuple[:2]
         mask = None
 
-        if len(tempTuple)>=3:
+        if len(tempTuple)>=3: # ie a mask is also provided
             if method in (0,3):
                 mask = tempTuple[2]
             else:
