@@ -126,12 +126,21 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
         
     else:
         xOffset=yOffset=0
-
-    listHit = []
-    for tempTuple in listTemplates:
-
+    
+    # Check that the template are all smaller are equal to the image (original, or cropped if there is a search region)
+    for index, tempTuple in enumerate(listTemplates):
+        
         if not isinstance(tempTuple, tuple) or len(tempTuple)==1:
             raise ValueError("listTemplates should be a list of tuples as ('name','array') or ('name', 'array', 'mask')")
+            
+        templateSmallerThanImage = all(templateDim <= imageDim for templateDim, imageDim in zip(tempTuple[1].shape, image.shape))
+        
+        if not templateSmallerThanImage :
+            fitIn = "searchBox" if (searchBox is not None) else "image"
+            raise ValueError("Template '{}' at index {} in the list of templates is larger than {}.".format(tempTuple[0], index, fitIn) )
+        
+    listHit = []
+    for tempTuple in listTemplates:
 
         templateName, template = tempTuple[:2]
         mask = None
