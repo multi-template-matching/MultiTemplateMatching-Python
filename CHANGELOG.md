@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
+## [1.6.2] - 2021-10-05
+
+### Added
+- Checking if all templates fit in the search region/image as suggested by @insertscode
+- Corresponding tests
+
+### Changed
+- Renamed requirements.txt to old_requirements.txt, and removed MTM from requirements. Binder uses setup.py anyway.
+
+
 ## [1.6.1] - 2020-08-20
 ### Added
 - support mask for matchTemplates and findMatches as in cv2.matchTemplates with method 0 or 3
