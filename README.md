@@ -8,6 +8,9 @@ The main function `MTM.matchTemplates` returns the best predicted locations prov
 
 The branch opencl contains some test using the UMat object to run on GPU, but it is actually slow, which can be expected for small dataset as the transfer of the data between the CPU and GPU is slow.
 
+__** News **__ : You might be interested to test the newer python implementation which is more object-oriented and only relying on scikit-image and shapely.*
+https://github.com/multi-template-matching/mtm-python-oop 
+
 # Installation
 Using pip in a python environment, `pip install Multi-Template-Matching`  
 Once installed, `import MTM`should work.  
