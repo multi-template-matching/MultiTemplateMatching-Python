@@ -71,10 +71,8 @@ def NMS(tableHit, scoreThreshold=0.5, sortAscending=False, N_object=float("inf")
     indexes = cv2.dnn.NMSBoxes(listBoxes, listScores, scoreThreshold, maxOverlap)
     
     # Get N best hit
-    if N_object == float("inf"): 
-        indexes  = [ index[0] for index in indexes ] # ordered by score
-    else:
-        indexes  = [ index[0] for index in indexes[:N_object] ]
+    if N_object != float("inf"): 
+        indexes = indexes[:N_object] 
         
     outTable = tableHit.iloc[indexes]
     
