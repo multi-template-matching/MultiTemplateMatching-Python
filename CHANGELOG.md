@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
+### [1.6.3] - 2021-11-24  
+
+### Changed 
+- Updated internal NMS code to work with latest OpenCV, and set min OpenCV version to 4.5.4.   
+
+## [1.6.2.post1] - 2021-11-24  
+
+### Changed
+- Fix issue with latest OpenCV version, by limiting OpenCV version to 4.3.0.  
+
+
 ## [1.6.2] - 2021-10-05
 
 ### Added
