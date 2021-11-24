@@ -20,7 +20,7 @@ setuptools.setup(
 	packages=["MTM"],
 	install_requires=[
 		  'numpy',
-		  'opencv-python-headless<=4.3.0',
+		  'opencv-python-headless>=4.5.4',
 		  'scikit-image',
 		  'scipy',
 		  'pandas'
