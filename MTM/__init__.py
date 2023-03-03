@@ -222,6 +222,7 @@ def _multi_compute(tempTuple, image, method, N_object, score_threshold, xOffset,
 
     for peak in peaks :
         # append to list of potential hit before Non maxima suppression
+        # no need to lock the list, append is thread-safe
         listHit.append({'TemplateName':templateName, 'BBox': ( int(peak[1])+xOffset, int(peak[0])+yOffset, width, height ) , 'Score':corrMap[tuple(peak)]}) # empty df with correct column header
 
 

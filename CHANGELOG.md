@@ -3,10 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
-### [1.6.4] - 2023-01-19  
+### [1.6.4] - 2023-03-03
 
 ### Changed 
 - Improve speed by adding concurrency in the findMatches method, using half the number of cpu cores available.
+- Mention installation in editable mode in README
 
 ### [1.6.3] - 2021-11-24  
 
