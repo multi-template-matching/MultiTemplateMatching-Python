@@ -8,13 +8,22 @@ The main function `MTM.matchTemplates` returns the best predicted locations prov
 
 The branch opencl contains some test using the UMat object to run on GPU, but it is actually slow, which can be expected for small dataset as the transfer of the data between the CPU and GPU is slow.
 
-__** News **__ : You might be interested to test the newer python implementation which is more object-oriented and only relying on scikit-image and shapely.*
+# News
+- 03/03/2023 : Version 1.6.4 contributed by @bartleboeuf comes with speed enhancement thanks to parallelizing of the individual template searches.
+Thanks for this first PR !!
+- 10/11/2021 : You might be interested to test the newer python implementation which is more object-oriented and only relying on scikit-image and shapely.*
 https://github.com/multi-template-matching/mtm-python-oop 
 
 # Installation
 Using pip in a python environment, `pip install Multi-Template-Matching`  
 Once installed, `import MTM`should work.  
 Example jupyter notebooks can be downloaded from the tutorial folder of the github repository and executed in the newly configured python environement.  
+
+## Install in dev mode
+If you want to contribute or experiment with the source code, you can install the package "from source", by first downloading or cloning the repo.    
+Then opening a command prompt in the repo's root directory (the one containing this README) and calling `pip install -e .` (mind the final dot).    
+- the `-e` flag stands for editable and make sure that any change to the source code will be directly reflected when you import the package in your script  
+- the . just tell pip to look for the package to install in the current directory
 
 # Documentation
 The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Python/wiki) section of the repo contains a mini API documentation with description of the key functions of the package.   
