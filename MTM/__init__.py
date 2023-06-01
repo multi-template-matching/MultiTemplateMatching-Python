@@ -121,7 +121,14 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     """
     if N_object != float("inf") and not isinstance(N_object, int):
         raise TypeError("N_object must be an integer")
-
+    
+    ## Check image has not 0-width or height
+    if image.shape[0] == 0:
+        raise ValueError("Image has a height of 0.")
+    
+    if image.shape[1] == 0:
+        raise ValueError("Image has a width of 0.")
+    
     ## Crop image to search region if provided
     if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
@@ -132,14 +139,25 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     # Check that the template are all smaller are equal to the image (original, or cropped if there is a search region)
     for index, tempTuple in enumerate(listTemplates):
 
-        if not isinstance(tempTuple, tuple) or len(tempTuple)==1:
+        if not isinstance(tempTuple, tuple) or len(tempTuple)<2:
             raise ValueError("listTemplates should be a list of tuples as ('name','array') or ('name', 'array', 'mask')")
-
-        templateSmallerThanImage = all(templateDim <= imageDim for templateDim, imageDim in zip(tempTuple[1].shape, image.shape))
+        
+        tempName = tempTuple[0]
+        tempImage = tempTuple[1]
+        
+        # Check that template is not 0-width or height
+        if tempImage.shape[0] == 0:
+            raise ValueError(f"Template '{tempName}' has a height of 0.")
+        
+        if tempImage.shape[1] == 0:
+            raise ValueError(f"Template '{tempName}' has a width of 0.")
+        
+        
+        templateSmallerThanImage = all(templateDim <= imageDim for templateDim, imageDim in zip(tempImage.shape, image.shape)) # check both width/height smaller than image or search region
 
         if not templateSmallerThanImage :
             fitIn = "searchBox" if (searchBox is not None) else "image"
-            raise ValueError("Template '{}' at index {} in the list of templates is larger than {}.".format(tempTuple[0], index, fitIn) )
+            raise ValueError("Template '{}' at index {} in the list of templates is larger than {}.".format(tempName, index, fitIn) )
 
     listHit = []
     ## Use multi-threading to iterate through all templates, using half the number of cpu cores available.
