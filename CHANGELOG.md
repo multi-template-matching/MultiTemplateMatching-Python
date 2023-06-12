@@ -3,16 +3,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
-### [1.6.4] - 2023-03-03
+
+## [1.6.5] - 2023-06-12
+
+### Changed
+- Throw a clearer error message in place of OpenCV error message when template and/or image has 0-width or height
+- Add `pip install matplotlib` in example notebooks since not an actualy dependency of MTM
+
+
+## [1.6.4] - 2023-03-03
 
 ### Changed 
 - Improve speed by adding concurrency in the findMatches method, using half the number of cpu cores available.
 - Mention installation in editable mode in README
 
-### [1.6.3] - 2021-11-24  
+
+## [1.6.3] - 2021-11-24  
 
 ### Changed 
 - Updated internal NMS code to work with latest OpenCV, and set min OpenCV version to 4.5.4.   
+
 
 ## [1.6.2.post1] - 2021-11-24  
 
