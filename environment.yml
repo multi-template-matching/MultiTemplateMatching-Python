@@ -1,0 +1,8 @@
+name: binder-env
+
+dependencies:
+  - matplotlib
+  - pandas
+  - pip
+  - pip:
+       -.
