@@ -19,8 +19,8 @@ setuptools.setup(
 	url="https://github.com/multi-template-matching/MultiTemplateMatching-Python",
 	packages=["MTM"],
 	install_requires=[
-		  'numpy',
-		  'opencv-python-headless>=4.5.4',
+		  'numpy >= 1.21',
+		  'opencv-python-headless >= 4.5.4',
 		  'scikit-image',
 		  'scipy',
 	  ],

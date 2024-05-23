@@ -3,6 +3,7 @@ import os
 import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Tuple, List, Sequence, Optional
+from numpy.typing import NDArray
 
 import cv2
 import numpy as np
@@ -16,8 +17,9 @@ __all__ = ['NMS']
 
 # Define custom "types" for type hints
 BBox = Tuple[int, int, int, int]  # bounding box in the form (x,y,width,height) with x,y top left corner
+TemplateTuple = Tuple[str, NDArray, Optional[NDArray]]
 
-def _findLocalMax_(corrMap, score_threshold=0.6):
+def _findLocalMax_(corrMap:NDArray, score_threshold=0.6):
     """Get coordinates of the local maximas with values above a threshold in the image of the correlation map."""
     # If depending on the shape of the correlation map
     if corrMap.shape == (1,1): ## Template size = Image size -> Correlation map is a single digit')
@@ -46,12 +48,12 @@ def _findLocalMax_(corrMap, score_threshold=0.6):
 
 
 
-def _findLocalMin_(corrMap, score_threshold=0.4):
+def _findLocalMin_(corrMap:NDArray, score_threshold=0.4):
     """Find coordinates of local minimas with values below a threshold in the image of the correlation map."""
     return _findLocalMax_(-corrMap, -score_threshold)
 
 
-def computeScoreMap(template, image, method:int = cv2.TM_CCOEFF_NORMED, mask=None):
+def computeScoreMap(template:NDArray, image:NDArray, method:int = cv2.TM_CCOEFF_NORMED, mask=None):
     """
     Compute score map provided numpy array for template and image (automatically converts images if necessary).
     The template must be smaller or as large as the image.
@@ -90,7 +92,7 @@ def computeScoreMap(template, image, method:int = cv2.TM_CCOEFF_NORMED, mask=Non
     return cv2.matchTemplate(image, template, method, mask=mask)
 
 
-def findMatches(listTemplates, image, method:int = cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold:float=0.5, searchBox:Optional[BBox] = None) -> List[Hit]:
+def findMatches(listTemplates : Sequence[TemplateTuple], image:NDArray, method:int = cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold:float=0.5, searchBox:Optional[BBox] = None) -> List[Hit]:
     """
     Find all possible templates locations satisfying the score threshold provided a list of templates to search and an image.
 
@@ -174,7 +176,7 @@ def findMatches(listTemplates, image, method:int = cv2.TM_CCOEFF_NORMED, N_objec
 
     return listHit # All possible hits before Non-Maxima Supression
 
-def _multi_compute(tempTuple, image, method:int, N_object:int, score_threshold:float, xOffset:int, yOffset:int, listHit:Sequence[Hit]):
+def _multi_compute(tempTuple : Sequence[TemplateTuple], image:NDArray, method:int, N_object:int, score_threshold:float, xOffset:int, yOffset:int, listHit:Sequence[Hit]):
     """
     Find all possible template locations satisfying the score threshold provided a template to search and an image.
     Add the hits found to the provided listHit, this function is running in parallel each instance for a different templates.
@@ -242,7 +244,7 @@ def _multi_compute(tempTuple, image, method:int, N_object:int, score_threshold:f
     listHit.extend(newHits)
 
 
-def matchTemplates(listTemplates, image, method:int = cv2.TM_CCOEFF_NORMED, N_object = float("inf"), score_threshold:float = 0.5, maxOverlap:float = 0.25, searchBox:Optional[BBox] = None) -> List[Hit]:
+def matchTemplates(listTemplates:List[TemplateTuple], image:NDArray, method:int = cv2.TM_CCOEFF_NORMED, N_object = float("inf"), score_threshold:float = 0.5, maxOverlap:float = 0.25, searchBox:Optional[BBox] = None) -> List[Hit]:
     """
     Search each template in the image, and return the best N_object locations which offer the best score and which do not overlap above the maxOverlap threshold.
 
@@ -294,7 +296,7 @@ def matchTemplates(listTemplates, image, method:int = cv2.TM_CCOEFF_NORMED, N_ob
     return NMS(listHits, score_threshold, sortAscending, N_object, maxOverlap)
 
 
-def drawBoxesOnRGB(image, listHit:Sequence[Hit], boxThickness:int=2, boxColor:Tuple[int,int,int] = (255, 255, 00), showLabel:bool=False, labelColor=(255, 255, 0), labelScale=0.5 ):
+def drawBoxesOnRGB(image:NDArray, listHit:Sequence[Hit], boxThickness:int=2, boxColor:Tuple[int,int,int] = (255, 255, 00), showLabel:bool=False, labelColor=(255, 255, 0), labelScale=0.5 ):
     """
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image
     The name of the template can also be displayed on top of the bounding box with showLabel=True
@@ -341,7 +343,7 @@ def drawBoxesOnRGB(image, listHit:Sequence[Hit], boxThickness:int=2, boxColor:Tu
     return outImage
 
 
-def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
+def drawBoxesOnGray(image:NDArray, listHit:Sequence[Hit], boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
     """
     Same as drawBoxesOnRGB but with Graylevel.
     If a RGB image is provided, the output image will be a grayscale image
@@ -350,7 +352,7 @@ def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=Fal
     ----------
     - image  : image in which the search was performed
 
-    - tableHit: list of hit as returned by matchTemplates or findMatches
+    - listHit: list of hit as returned by matchTemplates or findMatches
 
     - boxThickness: int
                 thickness of bounding box contour in pixels
@@ -370,12 +372,20 @@ def drawBoxesOnGray(image, tableHit, boxThickness=2, boxColor=255, showLabel=Fal
             original image with predicted template locations depicted as bounding boxes
     """
     # Convert RGB to grayscale
-    if image.ndim == 3: outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) # convert to RGB to be able to show detections as color box on grayscale image
-    else:               outImage = image.copy()
+    outImage = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) if image.ndim == 3 else image.copy()
 
-    for _, row in tableHit.iterrows():
-        x,y,w,h = row['BBox']
+    for label, bbox, _ in listHit:
+        
+        x,y,w,h = bbox
         cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-        if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA)
+        
+        if showLabel: 
+            cv2.putText(outImage, 
+                        text=label, 
+                        org=(x, y), 
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                        fontScale=labelScale, 
+                        color=labelColor, 
+                        lineType=cv2.LINE_AA)
 
     return outImage
