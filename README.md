@@ -9,6 +9,7 @@ The main function `MTM.matchTemplates` returns the best predicted locations prov
 The branch opencl contains some test using the UMat object to run on GPU, but it is actually slow, which can be expected for small dataset as the transfer of the data between the CPU and GPU is slow.
 
 # News
+- Version 2.0.0 got rid of the dependency on pandas, the list of hit is simply a python list. The new version also features extensive type hints in functions
 - 03/03/2023 : Version 1.6.4 contributed by @bartleboeuf comes with speed enhancement thanks to parallelizing of the individual template searches.
 Thanks for this first PR !!
 - 10/11/2021 : You might be interested to test the newer python implementation which is more object-oriented and only relying on scikit-image and shapely.*
@@ -29,6 +30,26 @@ Then opening a command prompt in the repo's root directory (the one containing t
 The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Python/wiki) section of the repo contains a mini API documentation with description of the key functions of the package.   
 The [website](https://multi-template-matching.github.io/Multi-Template-Matching/) of the project contains some more general documentation.
 
+# Tips and tricks
+- To have a nicer formatting when printing the list of detected hits, you can wrap it into a numpy array, and print that array as following  
+`print(np.array(listHit, dtype=object))`, the `dtype=object` argument is required as each hit in the list is made of different data type (string, tuple and float)
+
+- Before version 2.0.0, most functions were returning or accepting pandas DataFrame for the list of hit.  
+You can still get such DataFrame from the list of hit returned by the newer version of the package, using these commands  
+
+```python
+import pandas as pd
+
+listLabel = [hit[0] for hit in listHit]
+listBbox  = [hit[1] for hit in listHit]
+listScore = [hit[2] for hit in listHit]
+
+df = pd.DataFrame({"Label":listLabel,
+				   "bounding box":listBbox,
+				   "Score":listScore})
+
+print(df)
+```
 
 # Examples
 Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  
