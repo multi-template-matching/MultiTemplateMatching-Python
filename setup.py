@@ -23,7 +23,6 @@ setuptools.setup(
 		  'opencv-python-headless>=4.5.4',
 		  'scikit-image',
 		  'scipy',
-		  'pandas'
 	  ],
 	classifiers=[
 		"Programming Language :: Python :: 3",

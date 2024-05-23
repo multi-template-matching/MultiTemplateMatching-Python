@@ -3,6 +3,7 @@ TEST SCRIPT.
 
 Make sure the active directory is the directory of the repo when running the test in a IDE
 """
+#%%
 from skimage.data import coins
 import matplotlib.pyplot as plt
 import MTM, cv2
@@ -20,15 +21,15 @@ listTemplates = [('small', smallCoin),
 
 
 #%% Perform matching
-tableHit = MTM.matchTemplates(listTemplates, image, score_threshold=0.3, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)  # Correlation-score
+listHit = MTM.matchTemplates(listTemplates, image, score_threshold=0.3, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)  # Correlation-score
 #tableHit = MTM.matchTemplates(listTemplates, image, score_threshold=0.4, method=cv2.TM_SQDIFF_NORMED, maxOverlap=0) # Difference-score
 
-print("Found {} coins".format(len(tableHit)))
-print(tableHit)
+print("Found {} coins".format(len(listHit)))
+print(np.array(listHit, dtype=object))
 
 
 #%% Display matches
-Overlay = MTM.drawBoxesOnRGB(image, tableHit, showLabel=True)
+Overlay = MTM.drawBoxesOnRGB(image, listHit, showLabel=True)
 plt.figure()
 plt.imshow(Overlay)
 
@@ -46,9 +47,9 @@ MTM.matchTemplates([tooLarge], image) # larger than image
 import gluoncv as gcv
 
 # Convert from x,y,w,h to xmin, ymin, xmax, ymax
-BBoxes_xywh = np.array( tableHit["BBox"].tolist() ) 
+BBoxes_xywh = np.array( [hit[1] for hit in listHit] ) 
 BBoxes_xyxy = gcv.utils.bbox.bbox_xywh_to_xyxy(BBoxes_xywh)
 
-Overlay2 = gcv.utils.viz.cv_plot_bbox(cv2.cvtColor(image, cv2.COLOR_GRAY2RGB), BBoxes_xyxy.astype("float64"), scores=tableHit["Score"].to_numpy(), thresh=0  )
+Overlay2 = gcv.utils.viz.cv_plot_bbox(cv2.cvtColor(image, cv2.COLOR_GRAY2RGB), BBoxes_xyxy.astype("float64"), scores=[hit[2] for hit in listHit], thresh=0  )
 plt.figure()
 plt.imshow(Overlay2)

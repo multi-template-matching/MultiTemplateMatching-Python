@@ -2,4 +2,3 @@ numpy==1.22.0
 opencv-python-headless==4.2.0.32
 scikit-image==0.15.0
 scipy==1.10.0
-pandas==0.25.0

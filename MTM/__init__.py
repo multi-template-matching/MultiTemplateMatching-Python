@@ -2,24 +2,27 @@
 import os
 import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Tuple, List, Sequence, Optional
 
 import cv2
 import numpy as np
-import pandas as pd
 from scipy.signal import find_peaks
 from skimage.feature import peak_local_max
 
-from .NMS import NMS
+from .NMS import NMS, Hit
 from .version import __version__
 
 __all__ = ['NMS']
 
+# Define custom "types" for type hints
+BBox = Tuple[int, int, int, int]  # bounding box in the form (x,y,width,height) with x,y top left corner
+
 def _findLocalMax_(corrMap, score_threshold=0.6):
     """Get coordinates of the local maximas with values above a threshold in the image of the correlation map."""
-    # IF depending on the shape of the correlation map
+    # If depending on the shape of the correlation map
     if corrMap.shape == (1,1): ## Template size = Image size -> Correlation map is a single digit')
 
-        if corrMap[0,0]>=score_threshold:
+        if corrMap[0,0] >= score_threshold:
             peaks = np.array([[0,0]])
         else:
             peaks = []
@@ -48,7 +51,7 @@ def _findLocalMin_(corrMap, score_threshold=0.4):
     return _findLocalMax_(-corrMap, -score_threshold)
 
 
-def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
+def computeScoreMap(template, image, method:int = cv2.TM_CCOEFF_NORMED, mask=None):
     """
     Compute score map provided numpy array for template and image (automatically converts images if necessary).
     The template must be smaller or as large as the image.
@@ -87,10 +90,9 @@ def computeScoreMap(template, image, method=cv2.TM_CCOEFF_NORMED, mask=None):
     return cv2.matchTemplate(image, template, method, mask=mask)
 
 
-def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, searchBox=None):
+def findMatches(listTemplates, image, method:int = cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold:float=0.5, searchBox:Optional[BBox] = None) -> List[Hit]:
     """
     Find all possible templates locations satisfying the score threshold provided a list of templates to search and an image.
-    Returns a pandas dataframe with one row per detection.
 
     Parameters
     ----------
@@ -117,7 +119,10 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
 
     Returns
     -------
-    - Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float
+    A list of hit where each hit is a tuple as following ["TemplateName", (x, y, width, height), score]
+    where template name is the name (or label) of the matching template
+    (x, y, width, height) is a tuple of the bounding box coordinates in pixels, with xy the coordinates for the top left corner
+    score (float) for the confidence of the detection
     """
     if N_object != float("inf") and not isinstance(N_object, int):
         raise TypeError("N_object must be an integer")
@@ -132,9 +137,9 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
     ## Crop image to search region if provided
     if searchBox is not None:
         xOffset, yOffset, searchWidth, searchHeight = searchBox
-        image = image[yOffset : yOffset+searchHeight, xOffset : xOffset+searchWidth]
+        image = image[yOffset : yOffset + searchHeight, xOffset : xOffset + searchWidth]
     else:
-        xOffset=yOffset=0
+        xOffset = yOffset = 0
 
     # Check that the template are all smaller are equal to the image (original, or cropped if there is a search region)
     for index, tempTuple in enumerate(listTemplates):
@@ -160,22 +165,19 @@ def findMatches(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=floa
             raise ValueError("Template '{}' at index {} in the list of templates is larger than {}.".format(tempName, index, fitIn) )
 
     listHit = []
-    ## Use multi-threading to iterate through all templates, using half the number of cpu cores available.
+    # Use multi-threading to iterate through all templates, using half the number of cpu cores available.
+    # i.e parallelize the search with the individual templates, in the same image
     with ThreadPoolExecutor(max_workers=round(os.cpu_count()*.5)) as executor:
         futures = [executor.submit(_multi_compute, tempTuple, image, method, N_object, score_threshold, xOffset, yOffset, listHit) for tempTuple in listTemplates]
         for future in as_completed(futures):
             _ = future.result()
 
-    if listHit:
-        return pd.DataFrame(listHit) # All possible hits before Non-Maxima Supression
-    else:
-        return pd.DataFrame(columns=["TemplateName", "BBox", "Score"])
+    return listHit # All possible hits before Non-Maxima Supression
 
-
-def _multi_compute(tempTuple, image, method, N_object, score_threshold, xOffset, yOffset, listHit):
+def _multi_compute(tempTuple, image, method:int, N_object:int, score_threshold:float, xOffset:int, yOffset:int, listHit:Sequence[Hit]):
     """
     Find all possible template locations satisfying the score threshold provided a template to search and an image.
-    Add the hits in the list of hits.
+    Add the hits found to the provided listHit, this function is running in parallel each instance for a different templates.
 
     Parameters
     ----------
@@ -203,8 +205,7 @@ def _multi_compute(tempTuple, image, method, N_object, score_threshold, xOffset,
     - yOffset : int
                 optional the y offset if the search area is provided
 
-    - listHit : the list of hits which we want to add the discovered hit
-                expected array of hits
+    - listHit : New hits are added to this list
     """
     templateName, template = tempTuple[:2]
     mask = None
@@ -232,19 +233,16 @@ def _multi_compute(tempTuple, image, method, N_object, score_threshold, xOffset,
             peaks = _findLocalMax_(corrMap, score_threshold)
 
     #print('Initially found',len(peaks),'hit with this template')
-
-    # Once every peak was detected for this given template
-    ## Create a dictionnary for each hit with {'TemplateName':, 'BBox': (x,y,Width, Height), 'Score':coeff}
-
     height, width = template.shape[0:2] # slicing make sure it works for RGB too
 
-    for peak in peaks :
-        # append to list of potential hit before Non maxima suppression
-        # no need to lock the list, append is thread-safe
-        listHit.append({'TemplateName':templateName, 'BBox': ( int(peak[1])+xOffset, int(peak[0])+yOffset, width, height ) , 'Score':corrMap[tuple(peak)]}) # empty df with correct column header
+    # For each peak create a hit as a list [templateName, (x,y,width,height), score] and add this hit into a bigger list
+    newHits = [ (templateName, (int(peak[1]) + xOffset, int(peak[0]) + yOffset, width, height), corrMap[tuple(peak)] ) for peak in peaks]
+
+    # Finally add these new hits to the original list of hits
+    listHit.extend(newHits)
 
 
-def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=float("inf"), score_threshold=0.5, maxOverlap=0.25, searchBox=None):
+def matchTemplates(listTemplates, image, method:int = cv2.TM_CCOEFF_NORMED, N_object = float("inf"), score_threshold:float = 0.5, maxOverlap:float = 0.25, searchBox:Optional[BBox] = None) -> List[Hit]:
     """
     Search each template in the image, and return the best N_object locations which offer the best score and which do not overlap above the maxOverlap threshold.
 
@@ -278,23 +276,25 @@ def matchTemplates(listTemplates, image, method=cv2.TM_CCOEFF_NORMED, N_object=f
 
     Returns
     -------
-    Pandas DataFrame with 1 row per hit and column "TemplateName"(string), "BBox":(X, Y, Width, Height), "Score":float
+    A list of hit, where each hit is a tuple in the form (label, (x, y, width, height), score)
         if N=1, return the best matches independently of the score_threshold
         if N<inf, returns up to N best matches that passed the NMS
         if N=inf, returns all matches that passed the NMS
     """
-    if maxOverlap<0 or maxOverlap>1:
+    if maxOverlap < 0 or maxOverlap > 1:
         raise ValueError("Maximal overlap between bounding box is in range [0-1]")
 
-    tableHit = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
+    listHits = findMatches(listTemplates, image, method, N_object, score_threshold, searchBox)
 
-    if method == 0: raise ValueError("The method TM_SQDIFF is not supported. Use TM_SQDIFF_NORMED instead.")
+    if method == 0: 
+        raise ValueError("The method TM_SQDIFF is not supported. Use TM_SQDIFF_NORMED instead.")
+    
     sortAscending = (method==1)
 
-    return NMS(tableHit, score_threshold, sortAscending, N_object, maxOverlap)
+    return NMS(listHits, score_threshold, sortAscending, N_object, maxOverlap)
 
 
-def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), showLabel=False, labelColor=(255, 255, 0), labelScale=0.5 ):
+def drawBoxesOnRGB(image, listHit:Sequence[Hit], boxThickness:int=2, boxColor:Tuple[int,int,int] = (255, 255, 00), showLabel:bool=False, labelColor=(255, 255, 0), labelScale=0.5 ):
     """
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image
     The name of the template can also be displayed on top of the bounding box with showLabel=True
@@ -303,7 +303,7 @@ def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), sho
     ----------
     - image  : image in which the search was performed
 
-    - tableHit: list of hit as returned by matchTemplates or findMatches
+    - listHit: list of hit as returned by matchTemplates or findMatches
 
     - boxThickness: int
                     thickness of bounding box contour in pixels
@@ -322,13 +322,21 @@ def drawBoxesOnRGB(image, tableHit, boxThickness=2, boxColor=(255, 255, 00), sho
             original image with predicted template locations depicted as bounding boxes
     """
     # Convert Grayscale to RGB to be able to see the color bboxes
-    if image.ndim == 2: outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) # convert to RGB to be able to show detections as color box on grayscale image
-    else:               outImage = image.copy()
+    outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) if image.ndim == 2 else image.copy
 
-    for _, row in tableHit.iterrows():
-        x,y,w,h = row['BBox']
-        cv2.rectangle(outImage, (x, y), (x+w, y+h), color=boxColor, thickness=boxThickness)
-        if showLabel: cv2.putText(outImage, text=row['TemplateName'], org=(x, y), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=labelScale, color=labelColor, lineType=cv2.LINE_AA)
+    for label, bbox, _ in listHit:
+        
+        x,y,w,h = bbox
+        cv2.rectangle(outImage, (x, y), (x + w, y + h), color = boxColor, thickness = boxThickness)
+        
+        if showLabel: 
+            cv2.putText(outImage, 
+                        text=label, 
+                        org=(x, y), 
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                        fontScale=labelScale, 
+                        color=labelColor, 
+                        lineType=cv2.LINE_AA)
 
     return outImage
 
