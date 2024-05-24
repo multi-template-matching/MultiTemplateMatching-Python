@@ -31,18 +31,27 @@ The [wiki](https://github.com/multi-template-matching/MultiTemplateMatching-Pyth
 The [website](https://multi-template-matching.github.io/Multi-Template-Matching/) of the project contains some more general documentation.
 
 # Tips and tricks
+
+- `matchTemplates` expects for the template a list of tuples with one tuple per template in the form (a string identifier for the template, array for the template image). You can generate such list of tuples, from separate lists of the label and template images as following
+
+```python
+listLabel    = []  # this one should have the string identifier for each template
+listTemplate = [] # this one should have the image array for each template, both list should have the same length
+listTemplateTuple = zip(listLabel, listTemplate)
+```
+
+Similarly, from the list of hits returned by matchTemplates (or NMS), you can get individual lists for the label, bounding-boxes and scores, using `listLabel, listBbox, listScore = zip(*listHit)`
+
 - To have a nicer formatting when printing the list of detected hits, you can wrap it into a numpy array, and print that array as following  
 `print(np.array(listHit, dtype=object))`, the `dtype=object` argument is required as each hit in the list is made of different data type (string, tuple and float)
 
-- Before version 2.0.0, most functions were returning or accepting pandas DataFrame for the list of hit.  
-You can still get such DataFrame from the list of hit returned by the newer version of the package, using these commands  
+- Before version 2.0.0, most functions were returning or accepting pandas DataFrame for the list of hit. 
+You can still get such DataFrame from the list of hits returned by MTM v2.0.0 and later, using the command below  
 
 ```python
 import pandas as pd
 
-listLabel = [hit[0] for hit in listHit]
-listBbox  = [hit[1] for hit in listHit]
-listScore = [hit[2] for hit in listHit]
+listLabel, listBbox, listScore = zip(*listHit)
 
 df = pd.DataFrame({"Label":listLabel,
 				   "bounding box":listBbox,
@@ -50,6 +59,9 @@ df = pd.DataFrame({"Label":listLabel,
 
 print(df)
 ```
+
+You can also stick to previous version of MTM by specifying the version to pip install, or in a requirements.txt or environment.yml
+`pip install "Multi-Template-Matching < 2.0.0"
 
 # Examples
 Check out the [jupyter notebook tutorial](https://github.com/multi-template-matching/MultiTemplateMatching-Python/tree/master/tutorials) for some example of how to use the package.  

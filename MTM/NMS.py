@@ -55,13 +55,9 @@ def NMS(listHit:Sequence[Hit], scoreThreshold:float=0.5, sortAscending:bool=Fals
         return listHit[:] # same just making a copy to avoid side effects
 
     # Get separate lists for the bounding boxe coordinates and their score
-    listBoxes  = [None] * nHits # list of (x,y,width,height)
-    listScores = [None] * nHits  # list of associated scores
-    
-    for i, hit in enumerate(listHit): # single iteration through the list instead of using 2 list comprehensions
-        listBoxes[i] = hit[1]
-        listScores[i] = hit[2] 
-    
+    # use zip in the other direction with the * to "unzip"
+    listLabel, listBoxes, listScores = zip(*listHit)
+
     if N_object == 1:
         
         # Get hit with highest or lower score
