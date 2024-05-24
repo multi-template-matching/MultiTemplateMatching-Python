@@ -36,7 +36,7 @@ The [website](https://multi-template-matching.github.io/Multi-Template-Matching/
 
 ```python
 listLabel    = []  # this one should have the string identifier for each template
-listTemplate = [] # this one should have the image array for each template, both list should have the same length
+listTemplate = [] # this one should have the image array for each template, both lists should have the same length
 listTemplateTuple = zip(listLabel, listTemplate)
 ```
 
