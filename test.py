@@ -24,8 +24,9 @@ listTemplates = [('small', smallCoin),
 listHit = MTM.matchTemplates(listTemplates, image, score_threshold=0.3, method=cv2.TM_CCOEFF_NORMED, maxOverlap=0)  # Correlation-score
 #tableHit = MTM.matchTemplates(listTemplates, image, score_threshold=0.4, method=cv2.TM_SQDIFF_NORMED, maxOverlap=0) # Difference-score
 
+from pprint import pprint # pretty print to have one list item per line
 print("Found {} coins".format(len(listHit)))
-print(np.array(listHit, dtype=object))
+pprint(listHit)
 
 
 #%% Display matches

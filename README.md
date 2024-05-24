@@ -42,8 +42,12 @@ listTemplateTuple = zip(listLabel, listTemplate)
 
 Similarly, from the list of hits returned by matchTemplates (or NMS), you can get individual lists for the label, bounding-boxes and scores, using `listLabel, listBbox, listScore = zip(*listHit)`
 
-- To have a nicer formatting when printing the list of detected hits, you can wrap it into a numpy array, and print that array as following  
-`print(np.array(listHit, dtype=object))`, the `dtype=object` argument is required as each hit in the list is made of different data type (string, tuple and float)
+- To have a nicer formatting (one list item per row) when printing the list of detected hits, you can use the `pprint` function from the pprint module (for pretty print).  
+It's usually not needed in notebooks (see the example notebooks).  
+```
+from pprint import pprint
+pprint(listHit)
+```
 
 - Before version 2.0.0, most functions were returning or accepting pandas DataFrame for the list of hit. 
 You can still get such DataFrame from the list of hits returned by MTM v2.0.0 and later, using the command below  
