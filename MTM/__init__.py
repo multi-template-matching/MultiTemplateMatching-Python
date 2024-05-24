@@ -296,7 +296,7 @@ def matchTemplates(listTemplates:List[TemplateTuple], image:NDArray, method:int 
     return NMS(listHits, score_threshold, sortAscending, N_object, maxOverlap)
 
 
-def drawBoxesOnRGB(image:NDArray, listHit:Sequence[Hit], boxThickness:int=2, boxColor:Tuple[int,int,int] = (255, 255, 00), showLabel:bool=False, labelColor=(255, 255, 0), labelScale=0.5 ):
+def drawBoxesOnRGB(image:NDArray, listHit:Sequence[Hit], boxThickness:int=2, boxColor:Tuple[int,int,int] = (255, 255, 00), showLabel:bool=False, labelColor=(255, 255, 0), labelScale=0.5) -> NDArray:
     """
     Return a copy of the image with predicted template locations as bounding boxes overlaid on the image
     The name of the template can also be displayed on top of the bounding box with showLabel=True
@@ -343,7 +343,7 @@ def drawBoxesOnRGB(image:NDArray, listHit:Sequence[Hit], boxThickness:int=2, box
     return outImage
 
 
-def drawBoxesOnGray(image:NDArray, listHit:Sequence[Hit], boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5):
+def drawBoxesOnGray(image:NDArray, listHit:Sequence[Hit], boxThickness=2, boxColor=255, showLabel=False, labelColor=255, labelScale=0.5) -> NDArray:
     """
     Same as drawBoxesOnRGB but with Graylevel.
     If a RGB image is provided, the output image will be a grayscale image
