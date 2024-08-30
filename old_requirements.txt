@@ -1,4 +1,4 @@
 numpy==1.22.0
-opencv-python-headless==4.2.0.32
+opencv-python-headless==4.8.1.78
 scikit-image==0.15.0
 scipy==1.10.0
