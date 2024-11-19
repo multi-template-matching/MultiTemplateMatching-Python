@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
+## [2.0.1] - 2024-11-19
+
+### Fixed
+- Fixed call to copy in drawBoxesOnRGB ([issue22](https://github.com/multi-template-matching/MultiTemplateMatching-Python/issues/22))
+
+
 ## [2.0.0] - 2024-06-04
 
 ### Added
