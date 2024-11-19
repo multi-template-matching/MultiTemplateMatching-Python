@@ -324,7 +324,7 @@ def drawBoxesOnRGB(image:NDArray, listHit:Sequence[Hit], boxThickness:int=2, box
             original image with predicted template locations depicted as bounding boxes
     """
     # Convert Grayscale to RGB to be able to see the color bboxes
-    outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) if image.ndim == 2 else image.copy
+    outImage = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) if image.ndim == 2 else image.copy()
 
     for label, bbox, _ in listHit:
         
