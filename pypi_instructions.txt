@@ -1,0 +1,16 @@
+# first check that the version number was increased
+
+# open a command prompt in the repo's root
+# best use powershell otherwise complicated to paste the API token in the command prompt
+
+# upgrade build and twine
+pip install --upgrade build twine
+
+# compile the new version
+python -m build 
+
+# Upload to pypi
+python -m twine upload dist/*
+
+When asekd for the API prompt, paste the token (including the pypi prefix)
+Paste command is available when right-clicking the command prompt upper window handle.   
