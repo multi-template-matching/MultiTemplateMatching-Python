@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Thomas"
+  given-names: "Laurent"
+  orcid: "https://orcid.org/0000-0001-7686-3249"
+- family-names: "Gehrig"
+  given-names: "Jochen"
+  orcid: "https://orcid.org/0000-0002-1193-1324"
+title: "MultiTemplateMatching-Python"
+version: 2.0.0
+license: "MIT"
+date-released: 2024-06-04
+url: "https://github.com/multi-template-matching/MultiTemplateMatching-Python"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Thomas"
+    given-names: "Laurent"
+    orcid: "https://orcid.org/0000-0001-7686-3249"
+  - family-names: "Gehrig"
+    given-names: "Jochen"
+  orcid: "https://orcid.org/0000-0002-1193-1324"
+  doi: "10.1186/s12859-020-3363-7"
+  journal: "BMC Bioinformatics"
+  month: 2
+  title: "Multi-template matching: a versatile tool for object-localization in microscopy images"
+  issue: 1
+  volume: 21
+  year: 2020
